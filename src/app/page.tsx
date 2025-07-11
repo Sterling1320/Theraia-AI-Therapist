@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Bot, Play } from 'lucide-react';
+import { Bot, Play, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -32,12 +32,14 @@ export default function Home() {
         <div className="mt-16 grid grid-cols-1 gap-8 text-left md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Always Available</CardTitle>
+              <CardTitle className="font-headline flex items-center">
+                <Lock className="mr-2 h-5 w-5" />
+                Private & Secure
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="font-body">
-                TheraFlow is here for you 24/7. Access support whenever you feel
-                the need to talk.
+                Your session history is encrypted and stored on your device, not our servers. You are in complete control of your data.
               </CardDescription>
             </CardContent>
           </Card>
@@ -47,8 +49,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription className="font-body">
-                Our AI remembers your previous sessions to provide continuous
-                and personalized support.
+                Bring your encrypted record back to pick up where you left off, ensuring continuous and personalized support.
               </CardDescription>
             </CardContent>
           </Card>

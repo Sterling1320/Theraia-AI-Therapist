@@ -1,55 +1,107 @@
-// Summarize the therapy session and generate therpaeutic notes for a session.
-
 'use server';
+
+/**
+ * @fileOverview Summarize a therapy session, encrypt it, and return it.
+ *
+ * - summarizeAndEncryptSession - A function that summarizes a chat log and returns an encrypted string.
+ * - SummarizeAndEncryptSessionInput - The input type for the function.
+ * - SummarizeAndEncryptSessionOutput - The return type for the function.
+ */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import crypto from 'crypto';
 
-const SessionSummaryInputSchema = z.object({
-  sessionId: z.string().describe('Unique identifier for the session.'),
-  chatLog: z.string().describe('Complete chat log of the therapy session.'),
+const ALGORITHM = 'aes-256-cbc';
+const SECRET_KEY = process.env.ENCRYPTION_KEY || 'default_secret_key_32_chars_long';
+const IV_LENGTH = 16;
+
+function encrypt(text: string): string {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + ':' + encrypted;
+}
+
+const SummarizeAndEncryptSessionInputSchema = z.object({
+  chatLog: z
+    .string()
+    .describe('Complete chat log of the therapy session as a single string.'),
   previousSummary: z
     .string()
     .optional()
-    .describe('Summary of the previous session, if available.'),
+    .describe(
+      'The summary and notes from previous sessions, if they exist.'
+    ),
 });
 
-export type SessionSummaryInput = z.infer<typeof SessionSummaryInputSchema>;
+export type SummarizeAndEncryptSessionInput = z.infer<
+  typeof SummarizeAndEncryptSessionInputSchema
+>;
 
-const SessionSummaryOutputSchema = z.object({
-  summary: z.string().describe('Summary of the therapy session.'),
-  therapeuticNotes: z.string().describe('Therapeutic notes from the session.'),
+const SummarizeAndEncryptSessionOutputSchema = z.object({
+  encryptedRecord: z.string().describe('The encrypted session record.'),
 });
 
-export type SessionSummaryOutput = z.infer<typeof SessionSummaryOutputSchema>;
+export type SummarizeAndEncryptSessionOutput = z.infer<
+  typeof SummarizeAndEncryptSessionOutputSchema
+>;
 
-export async function summarizeSession(
-  input: SessionSummaryInput
-): Promise<SessionSummaryOutput> {
+const SessionSummarySchema = z.object({
+    summary: z.string().describe('A concise summary of the key topics discussed in the latest session.'),
+    therapeuticNotes: z.string().describe('Professional therapeutic notes, including observations, potential progress, and areas to explore in future sessions.'),
+});
+
+export async function summarizeAndEncryptSession(
+  input: SummarizeAndEncryptSessionInput
+): Promise<SummarizeAndEncryptSessionOutput> {
   return summarizeSessionFlow(input);
 }
 
 const summarizeSessionPrompt = ai.definePrompt({
   name: 'summarizeSessionPrompt',
-  input: {schema: SessionSummaryInputSchema},
-  output: {schema: SessionSummaryOutputSchema},
-  prompt: `You are an AI therapist reviewing a therapy session.
+  input: {schema: z.object({ chatLog: z.string() })},
+  output: {schema: SessionSummarySchema},
+  prompt: `You are an AI therapist reviewing a therapy session. Based on the following chat log, please generate:
+1. A concise summary of the session.
+2. Detailed therapeutic notes, including observations, patient's mood, and potential topics for future sessions.
 
-  Summarize the session, including key topics discussed and the overall sentiment of the patient. Also include therapeutic notes like possible diagnosis and treatment plans for the patient. Consider the previous session summary if available.
-
-  Previous Session Summary: {{previousSummary}}
-
-  Session Transcript: {{chatLog}}`,
+Chat Log:
+---
+{{{chatLog}}}
+---
+`,
 });
 
 const summarizeSessionFlow = ai.defineFlow(
   {
     name: 'summarizeSessionFlow',
-    inputSchema: SessionSummaryInputSchema,
-    outputSchema: SessionSummaryOutputSchema,
+    inputSchema: SummarizeAndEncryptSessionInputSchema,
+    outputSchema: SummarizeAndEncryptSessionOutputSchema,
   },
-  async input => {
-    const {output} = await summarizeSessionPrompt(input);
-    return output!;
+  async ({ chatLog, previousSummary }) => {
+    const { output: newSummary } = await summarizeSessionPrompt({ chatLog });
+    if (!newSummary) {
+        throw new Error('Failed to generate session summary.');
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const newRecordContent = `
+## Session Date: ${today}
+
+### Summary
+${newSummary.summary}
+
+### Therapeutic Notes
+${newSummary.therapeuticNotes}
+`;
+
+    // Prepend the new record to the previous summary
+    const fullRecord = `${newRecordContent.trim()}\n\n---\n\n${previousSummary || ''}`;
+    
+    const encryptedRecord = encrypt(fullRecord.trim());
+
+    return { encryptedRecord };
   }
 );
