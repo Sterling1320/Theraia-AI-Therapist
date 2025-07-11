@@ -14,8 +14,9 @@ import {
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-cbc';
-// Key must be 32 bytes for aes-256-cbc
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'a_default_32_byte_secret_key_!!!';
+// Key must be 32 bytes for aes-256-cbc. This is a default key.
+// In a production environment, this should be set in environment variables.
+const SECRET_KEY = process.env.ENCRYPTION_KEY || '12345678901234567890123456789012';
 
 function decrypt(text: string): string {
   try {
