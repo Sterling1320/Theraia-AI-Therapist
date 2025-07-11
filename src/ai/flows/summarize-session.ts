@@ -76,7 +76,7 @@ const summarizeSessionFlow = ai.defineFlow(
     }
 
     const today = new Date().toISOString().split('T')[0];
-    const newRecordContent = `
+    const newSessionContent = `
 ## Session Date: ${today}
 
 ### Summary
@@ -86,21 +86,28 @@ ${newSummary.summary}
 ${newSummary.therapeuticNotes}
 `;
 
-    let fullRecord;
-    // If it's the first session (no previous summary), create the initial record with patient info.
-    if (!previousSummary && (userName || userIntro)) {
-      const patientInfo = `
+    // Patient Information Block
+    const patientInfo = `
 # Theraia Patient Record
 
 ## Patient Information
 **Name:** ${userName || 'Not provided.'}
 **Initial Introduction:** ${userIntro || 'Not provided.'}
-`;
-      fullRecord = `${patientInfo.trim()}\n\n---\n\n${newRecordContent.trim()}`;
+`.trim();
+
+    let sessionEntries;
+    if (previousSummary) {
+      // For returning users, strip the old header to prevent duplicates.
+      const oldEntries = previousSummary.split('# Theraia Patient Record')[1] || previousSummary;
+      const cleanOldEntries = oldEntries.substring(oldEntries.indexOf('---') + 3).trim();
+      sessionEntries = `${newSessionContent.trim()}\n\n---\n\n${cleanOldEntries}`;
     } else {
-      // Prepend the new record to the previous summary
-      fullRecord = `${newRecordContent.trim()}\n\n---\n\n${previousSummary || ''}`;
+      // For new users, this is the first entry.
+      sessionEntries = newSessionContent.trim();
     }
+    
+    // Always construct the final record with a single, clean header at the top.
+    const fullRecord = `${patientInfo}\n\n---\n\n${sessionEntries}`;
     
     return { sessionRecord: fullRecord.trim() };
   }
