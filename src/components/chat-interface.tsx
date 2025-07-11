@@ -179,7 +179,8 @@ export default function ChatInterface() {
 
   const handleChatMessage = async () => {
     const userMessage: Message = { role: 'user', content: inputValue };
-    setMessages((prev) => [...prev, userMessage]);
+    const currentMessages = [...messages, userMessage];
+    setMessages(currentMessages);
     const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
@@ -192,8 +193,12 @@ export default function ChatInterface() {
           sessionRecord: sessionHistory,
         });
       } else {
+        const chatLog = currentMessages
+          .map((m) => `${m.role === 'user' ? 'User' : 'Therapist'}: ${m.content}`)
+          .join('\n');
         result = await getInitialTherapyResponse({
           message: currentInput,
+          chatLog: chatLog,
         });
       }
 

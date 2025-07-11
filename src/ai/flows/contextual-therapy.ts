@@ -13,6 +13,10 @@ import {z} from 'genkit';
 
 const InitialTherapyInputSchema = z.object({
   message: z.string().describe('The current message from the user.'),
+  chatLog: z
+    .string()
+    .optional()
+    .describe('The ongoing chat log of the current session.'),
 });
 export type InitialTherapyInput = z.infer<typeof InitialTherapyInputSchema>;
 
@@ -30,9 +34,14 @@ const prompt = ai.definePrompt({
   name: 'initialTherapyPrompt',
   input: {schema: InitialTherapyInputSchema},
   output: {schema: InitialTherapyOutputSchema},
-  prompt: `You are a therapy bot, designed to help users with their mental health. This is the user's first session. Be welcoming and start fresh.
+  prompt: `You are a therapy bot, designed to help users with their mental health. This is the user's first session. Be welcoming and supportive.
 
-  User Message: {{{message}}}
+  Use the following chat history to provide a continuous and empathetic experience.
+  ---
+  {{{chatLog}}}
+  ---
+
+  User's Current Message: {{{message}}}
 
   Respond in a helpful and empathetic way. Your main goal is to listen and provide support based on the conversation.
   `,
