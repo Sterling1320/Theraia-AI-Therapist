@@ -1,11 +1,11 @@
 'use client';
 
 import {
-  readSessionRecord,
   generateConcludingMessage,
   getTherapyResponse,
   processSession,
   processIntroduction,
+  getWelcomeBackMessage,
 } from '@/app/session/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -44,7 +44,9 @@ export default function ChatInterface() {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionState, setSessionState] = useState<SessionState>('initial');
-  const [sessionHistory, setSessionHistory] = useState<string | undefined>(undefined);
+  const [sessionHistory, setSessionHistory] = useState<string | undefined>(
+    undefined
+  );
   const [userName, setUserName] = useState('');
   const [userIntro, setUserIntro] = useState('');
 
@@ -65,7 +67,7 @@ export default function ChatInterface() {
       {
         role: 'bot',
         content:
-          "Hello! It's a pleasure to meet you. You can call me Mindra, your personal AI therapist. To get started, please feel free to introduce yourself.",
+          "Hello! Let's start with introductions. You can call me Mindra, your personal AI therapist. To get started, please feel free to introduce yourself and let me know what's on your mind.",
       },
     ]);
     setSessionState('gatheringInfo');
@@ -79,15 +81,14 @@ export default function ChatInterface() {
 
     try {
       const sessionRecord = await file.text();
-      const previousHistory = await readSessionRecord(sessionRecord);
-      setSessionHistory(previousHistory);
-      setMessages([
-        {
-          role: 'bot',
-          content:
-            'Thank you for providing your record. I have reviewed your previous session notes. How are you feeling today?',
-        },
-      ]);
+      setSessionHistory(sessionRecord);
+
+      const { userName, message } = await getWelcomeBackMessage({
+        sessionRecord,
+      });
+      setUserName(userName);
+
+      setMessages([{ role: 'bot', content: message }]);
       setSessionState('chatting');
     } catch (error: any) {
       console.error(error);
@@ -115,20 +116,23 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const { name, introduction, response } = await processIntroduction({ message: currentInput });
+      const { name, introduction, response } = await processIntroduction({
+        message: currentInput,
+      });
       setUserName(name);
       setUserIntro(introduction);
       setMessages((prev) => [...prev, { role: 'bot', content: response }]);
       setSessionState('chatting');
     } catch (error) {
-       console.error('Failed to process introduction:', error);
-       toast({
-         variant: 'destructive',
-         title: 'Error',
-         description: 'There was an issue processing your introduction. Please try again.',
-       });
-       // Revert to allow user to try again
-       setMessages(prev => prev.slice(0, -1));
+      console.error('Failed to process introduction:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description:
+          'There was an issue processing your introduction. Please try again.',
+      });
+      // Revert to allow user to try again
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
     }
@@ -153,18 +157,19 @@ export default function ChatInterface() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Could not connect to the therapist bot. Please try again.',
+        description:
+          'Could not connect to the therapist bot. Please try again.',
       });
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
-  
+
     if (sessionState === 'gatheringInfo') {
       handleInfoGathering();
     } else if (sessionState === 'chatting') {
@@ -173,20 +178,30 @@ export default function ChatInterface() {
   };
 
   const handleConcludeSession = async () => {
-    if (isLoading || sessionState !== 'chatting' || messages.length < 2) return;
+    if (isLoading || sessionState !== 'chatting' || messages.length < 2)
+      return;
     setIsLoading(true);
     setSessionState('concluding');
 
     const chatLog = messages
-      .map((m) => `${m.role === 'user' ? (userName || 'Patient') : 'Therapist'}: ${m.content}`)
+      .map((m) =>
+        `${m.role === 'user' ? userName || 'Patient' : 'Therapist'}: ${
+          m.content
+        }`
+      )
       .join('\n');
 
     try {
-      const { message: concludingMessage } = await generateConcludingMessage({ chatLog });
-      const concludingBotMessage: Message = { role: 'bot', content: concludingMessage };
+      const { message: concludingMessage } = await generateConcludingMessage({
+        chatLog,
+      });
+      const concludingBotMessage: Message = {
+        role: 'bot',
+        content: concludingMessage,
+      };
       setMessages((prev) => [...prev, concludingBotMessage]);
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const { sessionRecord } = await processSession({
         chatLog,
@@ -267,7 +282,7 @@ export default function ChatInterface() {
     <div className="flex flex-1 flex-col items-center justify-center space-y-4 text-center">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
       <p className="text-muted-foreground">
-        Loading your session record...
+        Reviewing your session record...
       </p>
     </div>
   );
@@ -277,9 +292,7 @@ export default function ChatInterface() {
       <header className="flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex items-center gap-3">
           <Bot className="h-8 w-8 text-primary" />
-          <h1 className="font-headline text-2xl font-bold">
-            Theraia
-          </h1>
+          <h1 className="font-headline text-2xl font-bold">Theraia</h1>
         </Link>
         {sessionState === 'chatting' && (
           <Button
@@ -291,11 +304,8 @@ export default function ChatInterface() {
             Conclude Session
           </Button>
         )}
-         {sessionState === 'concluding' && (
-          <Button
-            variant="outline"
-            disabled
-          >
+        {sessionState === 'concluding' && (
+          <Button variant="outline" disabled>
             <Loader2 className="mr-2 animate-spin" />
             Concluding...
           </Button>
@@ -345,21 +355,23 @@ export default function ChatInterface() {
                 )}
               </div>
             ))}
-            {isLoading && (sessionState === 'chatting' || sessionState === 'gatheringInfo') && (
-              <div className="flex items-start gap-4">
-                <Avatar>
-                  <AvatarFallback>
-                    <Bot />
-                  </AvatarFallback>
-                </Avatar>
-                <Card className="max-w-md bg-card/80">
-                  <CardContent className="space-y-2 p-4">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {isLoading &&
+              (sessionState === 'chatting' ||
+                sessionState === 'gatheringInfo') && (
+                <div className="flex items-start gap-4">
+                  <Avatar>
+                    <AvatarFallback>
+                      <Bot />
+                    </AvatarFallback>
+                  </Avatar>
+                  <Card className="max-w-md bg-card/80">
+                    <CardContent className="space-y-2 p-4">
+                      <Skeleton className="h-4 w-[250px]" />
+                      <Skeleton className="h-4 w-[200px]" />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             {sessionState === 'concluded' && (
               <div className="py-8 text-center font-body text-muted-foreground">
                 <p>Session has ended.</p>
@@ -373,7 +385,9 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {(sessionState === 'gatheringInfo' || sessionState === 'chatting' || sessionState === 'concluding') && (
+      {(sessionState === 'gatheringInfo' ||
+        sessionState === 'chatting' ||
+        sessionState === 'concluding') && (
         <footer className="border-t border-border/50 pt-4">
           <form onSubmit={handleSubmit} className="flex items-start gap-4">
             <Textarea
@@ -382,7 +396,11 @@ export default function ChatInterface() {
               placeholder={getPlaceholderText()}
               className="flex-1 resize-none bg-background/80"
               rows={2}
-              disabled={isLoading || sessionState === 'concluding' || sessionState === 'concluded'}
+              disabled={
+                isLoading ||
+                sessionState === 'concluding' ||
+                sessionState === 'concluded'
+              }
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -394,7 +412,10 @@ export default function ChatInterface() {
               type="submit"
               size="icon"
               disabled={
-                isLoading || !inputValue.trim() || sessionState === 'concluding' || sessionState === 'concluded'
+                isLoading ||
+                !inputValue.trim() ||
+                sessionState === 'concluding' ||
+                sessionState === 'concluded'
               }
             >
               <Send />

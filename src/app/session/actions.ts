@@ -23,6 +23,12 @@ import {
   ParseIntroductionOutput,
 } from '@/ai/flows/parse-introduction';
 
+import {
+  generateWelcomeBackMessage,
+  WelcomeBackInput,
+  WelcomeBackOutput,
+} from '@/ai/flows/generate-welcome-back-message';
+
 export async function getTherapyResponse(
   input: ContextualTherapyInput
 ): Promise<ContextualTherapyOutput> {
@@ -41,11 +47,6 @@ export async function processSession(
   input: CreateSessionRecordInput
 ): Promise<CreateSessionRecordOutput> {
   return await createSessionRecord(input);
-}
-
-// This function now just returns the text content of the uploaded file.
-export async function readSessionRecord(sessionRecord: string): Promise<string> {
-    return sessionRecord;
 }
 
 export async function generateConcludingMessage(
@@ -73,7 +74,23 @@ export async function processIntroduction(
     return {
       name: 'User',
       introduction: input.message,
-      response: "Thank you for sharing that. I'm here to listen whenever you're ready. What's on your mind?",
+      response:
+        "Thank you for sharing that. I'm here to listen whenever you're ready. What's on your mind?",
+    };
+  }
+}
+
+export async function getWelcomeBackMessage(
+  input: WelcomeBackInput
+): Promise<WelcomeBackOutput> {
+  try {
+    return await generateWelcomeBackMessage(input);
+  } catch (e) {
+    console.error(e);
+    return {
+      userName: 'User',
+      message:
+        'Welcome back. I have reviewed your previous session notes. How are you feeling today?',
     };
   }
 }
