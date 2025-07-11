@@ -15,7 +15,7 @@ import crypto from 'crypto';
 const ALGORITHM = 'aes-256-cbc';
 // Key must be 32 bytes for aes-256-cbc. This is a default key.
 // In a production environment, this should be set in environment variables.
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'aSecretKeyThatIsExactly32Bytes12';
+const SECRET_KEY = process.env.ENCRYPTION_KEY || 'aSecretKeyThatIsExactly32Bytes!!1';
 const IV_LENGTH = 16;
 
 function encrypt(text: string): string {
@@ -103,12 +103,12 @@ ${newSummary.therapeuticNotes}
 
     let fullRecord;
     // If it's the first session (no previous summary), create the initial record with patient info.
-    if (!previousSummary && userName) {
+    if (!previousSummary && (userName || userIntro)) {
       const patientInfo = `
 # Theraia Patient Record
 
 ## Patient Information
-**Name:** ${userName}
+**Name:** ${userName || 'Not provided.'}
 **Initial Introduction:** ${userIntro || 'Not provided.'}
 `;
       fullRecord = `${patientInfo.trim()}\n\n---\n\n${newRecordContent.trim()}`;

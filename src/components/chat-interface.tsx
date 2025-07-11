@@ -151,8 +151,9 @@ export default function ChatInterface() {
 
     try {
       // Prepend intro to the first user message for context
+      const isFirstChatMessage = messages.filter((m) => m.role === 'user').length === 1;
       const messageWithIntro =
-        userIntro && messages.filter((m) => m.role === 'user').length === 1
+        userIntro && isFirstChatMessage
           ? `My introduction: ${userIntro}\n\nMy first message: ${currentInput}`
           : currentInput;
           
