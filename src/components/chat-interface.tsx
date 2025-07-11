@@ -148,7 +148,7 @@ export default function ChatInterface() {
     try {
       const result = await getTherapyResponse({
         message: currentInput,
-        history: sessionHistory,
+        history: sessionHistory, // Pass the full history for returning users
       });
       const botMessage: Message = { role: 'bot', content: result.response };
       setMessages((prev) => [...prev, botMessage]);
