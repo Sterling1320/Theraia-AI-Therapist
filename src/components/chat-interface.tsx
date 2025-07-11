@@ -2,6 +2,7 @@
 
 import {
   decryptSessionRecord,
+  generateConcludingMessage,
   getTherapyResponse,
   processAndEncryptSession,
 } from '@/app/session/actions';
@@ -143,11 +144,21 @@ export default function ChatInterface() {
       .join('\n');
 
     try {
+      // 1. Get personalized concluding message
+      const { message: concludingMessage } = await generateConcludingMessage({ chatLog });
+      const concludingBotMessage: Message = { role: 'bot', content: concludingMessage };
+      setMessages((prev) => [...prev, concludingBotMessage]);
+
+      // Give a moment for the user to read the message.
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 2. Process and encrypt the session
       const { encryptedRecord } = await processAndEncryptSession({
         chatLog,
         previousSummary: sessionHistory,
       });
 
+      // 3. Trigger download
       const blob = new Blob([encryptedRecord], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -158,6 +169,7 @@ export default function ChatInterface() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      // 4. Add final message and set state
       setMessages((prev) => [
         ...prev,
         {

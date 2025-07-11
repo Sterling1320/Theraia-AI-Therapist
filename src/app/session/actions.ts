@@ -11,6 +11,13 @@ import {
   SummarizeAndEncryptSessionOutput,
 } from '@/ai/flows/summarize-session';
 
+import {
+  getConcludingMessage,
+  ConcludingMessageInput,
+  ConcludingMessageOutput,
+} from '@/ai/flows/concluding-message';
+
+
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-cbc';
@@ -58,4 +65,18 @@ export async function processAndEncryptSession(
 
 export async function decryptSessionRecord(encryptedRecord: string): Promise<string> {
     return decrypt(encryptedRecord);
+}
+
+export async function generateConcludingMessage(
+  input: ConcludingMessageInput
+): Promise<ConcludingMessageOutput> {
+  try {
+    return await getConcludingMessage(input);
+  } catch (e) {
+    console.error(e);
+    return {
+      message:
+        'Our session is complete. Please save your encrypted record. I hope you have a peaceful day.',
+    };
+  }
 }
