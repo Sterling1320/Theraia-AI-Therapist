@@ -6,9 +6,9 @@ import {
   ContextualTherapyOutput,
 } from '@/ai/flows/contextual-therapy';
 import {
-  summarizeAndEncryptSession,
-  SummarizeAndEncryptSessionInput,
-  SummarizeAndEncryptSessionOutput,
+  createSessionRecord,
+  CreateSessionRecordInput,
+  CreateSessionRecordOutput,
 } from '@/ai/flows/summarize-session';
 
 import {
@@ -17,30 +17,11 @@ import {
   ConcludingMessageOutput,
 } from '@/ai/flows/concluding-message';
 
-
-import crypto from 'crypto';
-
-const ALGORITHM = 'aes-256-cbc';
-// Key must be 32 bytes for aes-256-cbc. This is a default key.
-// In a production environment, this should be set in environment variables.
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'thisIsAFixed32ByteKeyForCrypto!!';
-
-function decrypt(text: string): string {
-  try {
-    const parts = text.split(':');
-    if (parts.length !== 2) throw new Error('Invalid encrypted text format');
-    const iv = Buffer.from(parts.shift()!, 'hex');
-    const encryptedText = Buffer.from(parts.join(':'), 'hex');
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(SECRET_KEY, 'utf-8'), iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
-  } catch (error) {
-    console.error("Decryption failed:", error);
-    // Return a specific error message or empty string to be handled by the client
-    throw new Error("Failed to decrypt record. The file may be corrupted or invalid.");
-  }
-}
+import {
+  parseIntroduction,
+  ParseIntroductionInput,
+  ParseIntroductionOutput,
+} from '@/ai/flows/parse-introduction';
 
 export async function getTherapyResponse(
   input: ContextualTherapyInput
@@ -56,15 +37,15 @@ export async function getTherapyResponse(
   }
 }
 
-export async function processAndEncryptSession(
-  input: SummarizeAndEncryptSessionInput
-): Promise<SummarizeAndEncryptSessionOutput> {
-  return await summarizeAndEncryptSession(input);
+export async function processSession(
+  input: CreateSessionRecordInput
+): Promise<CreateSessionRecordOutput> {
+  return await createSessionRecord(input);
 }
 
-
-export async function decryptSessionRecord(encryptedRecord: string): Promise<string> {
-    return decrypt(encryptedRecord);
+// This function now just returns the text content of the uploaded file.
+export async function readSessionRecord(sessionRecord: string): Promise<string> {
+    return sessionRecord;
 }
 
 export async function generateConcludingMessage(
@@ -76,7 +57,23 @@ export async function generateConcludingMessage(
     console.error(e);
     return {
       message:
-        'Our session is complete. Please save your encrypted record. I hope you have a peaceful day.',
+        'Our session is complete. Please save your session record. I hope you have a peaceful day.',
+    };
+  }
+}
+
+export async function processIntroduction(
+  input: ParseIntroductionInput
+): Promise<ParseIntroductionOutput> {
+  try {
+    return await parseIntroduction(input);
+  } catch (e) {
+    console.error(e);
+    // Provide a fallback in case of an error
+    return {
+      name: 'User',
+      introduction: input.message,
+      response: "Thank you for sharing that. I'm here to listen whenever you're ready. What's on your mind?",
     };
   }
 }

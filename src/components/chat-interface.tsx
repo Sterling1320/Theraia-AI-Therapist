@@ -1,10 +1,11 @@
 'use client';
 
 import {
-  decryptSessionRecord,
+  readSessionRecord,
   generateConcludingMessage,
   getTherapyResponse,
-  processAndEncryptSession,
+  processSession,
+  processIntroduction,
 } from '@/app/session/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -33,7 +34,7 @@ interface Message {
 type SessionState =
   | 'initial'
   | 'upload'
-  | 'gatheringInfo' // New state for first-time user onboarding
+  | 'gatheringInfo'
   | 'chatting'
   | 'concluding'
   | 'concluded';
@@ -46,7 +47,6 @@ export default function ChatInterface() {
   const [sessionHistory, setSessionHistory] = useState<string | undefined>(undefined);
   const [userName, setUserName] = useState('');
   const [userIntro, setUserIntro] = useState('');
-  const [infoStep, setInfoStep] = useState<'name' | 'intro'>('name');
 
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -65,11 +65,10 @@ export default function ChatInterface() {
       {
         role: 'bot',
         content:
-          "Welcome to Theraia. It's brave to take this first step. To begin, could you please tell me your name?",
+          "Hello! It's a pleasure to meet you. You can call me Mindra, your personal AI therapist. To get started, please feel free to introduce yourself.",
       },
     ]);
     setSessionState('gatheringInfo');
-    setInfoStep('name');
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,9 +78,9 @@ export default function ChatInterface() {
     setSessionState('upload');
 
     try {
-      const encryptedRecord = await file.text();
-      const decryptedHistory = await decryptSessionRecord(encryptedRecord);
-      setSessionHistory(decryptedHistory);
+      const sessionRecord = await file.text();
+      const previousHistory = await readSessionRecord(sessionRecord);
+      setSessionHistory(previousHistory);
       setMessages([
         {
           role: 'bot',
@@ -94,7 +93,7 @@ export default function ChatInterface() {
       console.error(error);
       toast({
         variant: 'destructive',
-        title: 'Decryption Failed',
+        title: 'Failed to Read Record',
         description:
           error.message ||
           'Could not read the record. Please ensure you uploaded the correct file.',
@@ -115,31 +114,24 @@ export default function ChatInterface() {
     setInputValue('');
     setIsLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    if (infoStep === 'name') {
-      setUserName(currentInput);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'bot',
-          content: `Thank you, ${currentInput}. Now, could you briefly tell me what brings you here today? This will help set a focus for our session.`,
-        },
-      ]);
-      setInfoStep('intro');
-    } else if (infoStep === 'intro') {
-      setUserIntro(currentInput);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'bot',
-          content:
-            "Thank you for sharing that. I'm here to listen. Let's explore this together. What's on your mind?",
-        },
-      ]);
+    try {
+      const { name, introduction, response } = await processIntroduction({ message: currentInput });
+      setUserName(name);
+      setUserIntro(introduction);
+      setMessages((prev) => [...prev, { role: 'bot', content: response }]);
       setSessionState('chatting');
+    } catch (error) {
+       console.error('Failed to process introduction:', error);
+       toast({
+         variant: 'destructive',
+         title: 'Error',
+         description: 'There was an issue processing your introduction. Please try again.',
+       });
+       // Revert to allow user to try again
+       setMessages(prev => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleChatMessage = async () => {
@@ -150,15 +142,8 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // Prepend intro to the first user message for context
-      const isFirstChatMessage = messages.filter((m) => m.role === 'user').length === 1;
-      const messageWithIntro =
-        userIntro && isFirstChatMessage
-          ? `My introduction: ${userIntro}\n\nMy first message: ${currentInput}`
-          : currentInput;
-          
       const result = await getTherapyResponse({
-        message: messageWithIntro,
+        message: currentInput,
         history: sessionHistory,
       });
       const botMessage: Message = { role: 'bot', content: result.response };
@@ -193,7 +178,7 @@ export default function ChatInterface() {
     setSessionState('concluding');
 
     const chatLog = messages
-      .map((m) => `${m.role === 'user' ? 'Patient' : 'Therapist'}: ${m.content}`)
+      .map((m) => `${m.role === 'user' ? (userName || 'Patient') : 'Therapist'}: ${m.content}`)
       .join('\n');
 
     try {
@@ -203,18 +188,18 @@ export default function ChatInterface() {
 
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const { encryptedRecord } = await processAndEncryptSession({
+      const { sessionRecord } = await processSession({
         chatLog,
         previousSummary: sessionHistory,
         userName: userName || undefined,
         userIntro: userIntro || undefined,
       });
 
-      const blob = new Blob([encryptedRecord], { type: 'text/plain' });
+      const blob = new Blob([sessionRecord], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'psych_record.txt';
+      a.download = 'theraia_record.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -225,7 +210,7 @@ export default function ChatInterface() {
         {
           role: 'bot',
           content:
-            'Our session has now concluded. Your encrypted session record has been downloaded. Please keep it safe for our next session. Take care.',
+            'Our session has now concluded. Your session record has been downloaded. Please keep it safe for our next session. Take care.',
         },
       ]);
       setSessionState('concluded');
@@ -244,7 +229,7 @@ export default function ChatInterface() {
 
   const getPlaceholderText = () => {
     if (sessionState === 'gatheringInfo') {
-      return infoStep === 'name' ? 'Please enter your name...' : 'Briefly describe what you\'d like to talk about...';
+      return 'Please introduce yourself...';
     }
     if (sessionState === 'chatting') {
       return 'Type your message here...';
@@ -282,7 +267,7 @@ export default function ChatInterface() {
     <div className="flex flex-1 flex-col items-center justify-center space-y-4 text-center">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
       <p className="text-muted-foreground">
-        Decrypting and loading your session record...
+        Loading your session record...
       </p>
     </div>
   );

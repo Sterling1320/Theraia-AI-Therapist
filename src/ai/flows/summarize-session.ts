@@ -1,32 +1,17 @@
 'use server';
 
 /**
- * @fileOverview Summarize a therapy session, encrypt it, and return it.
+ * @fileOverview Summarize a therapy session and return it as a plain text record.
  *
- * - summarizeAndEncryptSession - A function that summarizes a chat log and returns an encrypted string.
- * - SummarizeAndEncryptSessionInput - The input type for the function.
- * - SummarizeAndEncryptSessionOutput - The return type for the function.
+ * - createSessionRecord - A function that summarizes a chat log and returns a plain text string.
+ * - CreateSessionRecordInput - The input type for the function.
+ * - CreateSessionRecordOutput - The return type for the function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import crypto from 'crypto';
 
-const ALGORITHM = 'aes-256-cbc';
-// Key must be 32 bytes for aes-256-cbc. This is a default key.
-// In a production environment, this should be set in environment variables.
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'thisIsAFixed32ByteKeyForCrypto!!';
-const IV_LENGTH = 16;
-
-function encrypt(text: string): string {
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY, 'utf-8'), iv);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return iv.toString('hex') + ':' + encrypted;
-}
-
-const SummarizeAndEncryptSessionInputSchema = z.object({
+const CreateSessionRecordInputSchema = z.object({
   chatLog: z
     .string()
     .describe('Complete chat log of the therapy session as a single string.'),
@@ -40,16 +25,16 @@ const SummarizeAndEncryptSessionInputSchema = z.object({
   userIntro: z.string().optional().describe("The user's introduction, if provided."),
 });
 
-export type SummarizeAndEncryptSessionInput = z.infer<
-  typeof SummarizeAndEncryptSessionInputSchema
+export type CreateSessionRecordInput = z.infer<
+  typeof CreateSessionRecordInputSchema
 >;
 
-const SummarizeAndEncryptSessionOutputSchema = z.object({
-  encryptedRecord: z.string().describe('The encrypted session record.'),
+const CreateSessionRecordOutputSchema = z.object({
+  sessionRecord: z.string().describe('The plain text session record.'),
 });
 
-export type SummarizeAndEncryptSessionOutput = z.infer<
-  typeof SummarizeAndEncryptSessionOutputSchema
+export type CreateSessionRecordOutput = z.infer<
+  typeof CreateSessionRecordOutputSchema
 >;
 
 const SessionSummarySchema = z.object({
@@ -57,9 +42,9 @@ const SessionSummarySchema = z.object({
     therapeuticNotes: z.string().describe('Professional therapeutic notes, including observations, potential progress, and areas to explore in future sessions.'),
 });
 
-export async function summarizeAndEncryptSession(
-  input: SummarizeAndEncryptSessionInput
-): Promise<SummarizeAndEncryptSessionOutput> {
+export async function createSessionRecord(
+  input: CreateSessionRecordInput
+): Promise<CreateSessionRecordOutput> {
   return summarizeSessionFlow(input);
 }
 
@@ -81,8 +66,8 @@ Chat Log:
 const summarizeSessionFlow = ai.defineFlow(
   {
     name: 'summarizeSessionFlow',
-    inputSchema: SummarizeAndEncryptSessionInputSchema,
-    outputSchema: SummarizeAndEncryptSessionOutputSchema,
+    inputSchema: CreateSessionRecordInputSchema,
+    outputSchema: CreateSessionRecordOutputSchema,
   },
   async ({ chatLog, previousSummary, userName, userIntro }) => {
     const { output: newSummary } = await summarizeSessionPrompt({ chatLog });
@@ -117,8 +102,6 @@ ${newSummary.therapeuticNotes}
       fullRecord = `${newRecordContent.trim()}\n\n---\n\n${previousSummary || ''}`;
     }
     
-    const encryptedRecord = encrypt(fullRecord.trim());
-
-    return { encryptedRecord };
+    return { sessionRecord: fullRecord.trim() };
   }
 );
