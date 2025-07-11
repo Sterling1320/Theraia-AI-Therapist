@@ -11,7 +11,7 @@ export default function SessionPage() {
       }}
       data-ai-hint="mountain landscape"
     >
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-background/60 backdrop-blur-[3px]" />
       <AudioPlayer />
       <ChatInterface />
     </div>
