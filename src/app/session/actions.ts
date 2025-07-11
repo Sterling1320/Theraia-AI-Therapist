@@ -1,10 +1,15 @@
 'use server';
 
 import {
-  contextualTherapy,
-  ContextualTherapyInput,
-  ContextualTherapyOutput,
+  initialTherapy,
+  InitialTherapyInput,
+  InitialTherapyOutput,
 } from '@/ai/flows/contextual-therapy';
+import {
+  continuedConversation,
+  ContinuedConversationInput,
+  ContinuedConversationOutput,
+} from '@/ai/flows/continued-conversation';
 import {
   createSessionRecord,
   CreateSessionRecordInput,
@@ -29,11 +34,25 @@ import {
   WelcomeBackOutput,
 } from '@/ai/flows/generate-welcome-back-message';
 
-export async function getTherapyResponse(
-  input: ContextualTherapyInput
-): Promise<ContextualTherapyOutput> {
+export async function getInitialTherapyResponse(
+  input: InitialTherapyInput
+): Promise<InitialTherapyOutput> {
   try {
-    return await contextualTherapy(input);
+    return await initialTherapy(input);
+  } catch (e) {
+    console.error(e);
+    return {
+      response:
+        "I'm sorry, I encountered an error. Please try again in a moment.",
+    };
+  }
+}
+
+export async function getContinuedTherapyResponse(
+  input: ContinuedConversationInput
+): Promise<ContinuedConversationOutput> {
+  try {
+    return await continuedConversation(input);
   } catch (e) {
     console.error(e);
     return {

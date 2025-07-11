@@ -2,7 +2,8 @@
 
 import {
   generateConcludingMessage,
-  getTherapyResponse,
+  getInitialTherapyResponse,
+  getContinuedTherapyResponse,
   processSession,
   processIntroduction,
   getWelcomeBackMessage,
@@ -67,7 +68,7 @@ export default function ChatInterface() {
       {
         role: 'bot',
         content:
-          "Hello! Let's start with introductions. You can call me Mindra, your personal AI therapist. To get started, please feel free to introduce yourself and let me know what's on your mind.",
+          "Hello! I'm Mindra, your personal AI therapist. To help me get to know you, please feel free to introduce yourself and let me know what's on your mind.",
       },
     ]);
     setSessionState('gatheringInfo');
@@ -146,10 +147,20 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const result = await getTherapyResponse({
-        message: currentInput,
-        history: sessionHistory, // Pass the full history for returning users
-      });
+      let result;
+      if (sessionHistory) {
+        // This is a returning user with an uploaded session
+        result = await getContinuedTherapyResponse({
+          message: currentInput,
+          sessionRecord: sessionHistory,
+        });
+      } else {
+        // This is a new user or a user in their first session
+        result = await getInitialTherapyResponse({
+          message: currentInput,
+        });
+      }
+
       const botMessage: Message = { role: 'bot', content: result.response };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
