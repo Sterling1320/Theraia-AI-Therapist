@@ -61,7 +61,7 @@ export default function ChatInterface() {
       {
         role: 'bot',
         content:
-          "Welcome to TheraFlow. It's brave to take this first step. I'm here to listen. What's on your mind today?",
+          "Welcome to Theraia. It's brave to take this first step. I'm here to listen. What's on your mind today?",
       },
     ]);
     setSessionState('chatting');
@@ -182,7 +182,7 @@ export default function ChatInterface() {
 
   const renderInitialScreen = () => (
     <div className="flex flex-1 flex-col items-center justify-center space-y-6 text-center">
-      <h2 className="font-headline text-3xl">Welcome to TheraFlow</h2>
+      <h2 className="font-headline text-3xl">Welcome to Theraia</h2>
       <p className="max-w-md text-muted-foreground">
         Is this your first session, or are you returning with a session record?
       </p>
@@ -221,7 +221,7 @@ export default function ChatInterface() {
         <Link href="/" className="flex items-center gap-3">
           <Bot className="h-8 w-8 text-primary" />
           <h1 className="font-headline text-2xl font-bold">
-            TheraFlow Session
+            Theraia
           </h1>
         </Link>
         {sessionState === 'chatting' && (

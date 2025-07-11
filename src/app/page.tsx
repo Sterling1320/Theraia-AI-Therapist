@@ -15,7 +15,7 @@ export default function Home() {
       <div className="max-w-2xl text-center">
         <Bot className="mx-auto h-24 w-24 text-primary" />
         <h1 className="mt-4 text-5xl font-bold font-headline text-foreground">
-          Welcome to TheraFlow
+          Welcome to Theraia
         </h1>
         <p className="mt-4 text-lg text-muted-foreground font-body">
           Your safe and confidential space to talk, reflect, and grow. Our AI
