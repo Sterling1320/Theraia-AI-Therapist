@@ -15,7 +15,7 @@ import crypto from 'crypto';
 const ALGORITHM = 'aes-256-cbc';
 // Key must be 32 bytes for aes-256-cbc. This is a default key.
 // In a production environment, this should be set in environment variables.
-const SECRET_KEY = process.env.ENCRYPTION_KEY || '12345678901234567890123456789012';
+const SECRET_KEY = process.env.ENCRYPTION_KEY || 'aSecretKeyThatIsExactly32Bytes12';
 const IV_LENGTH = 16;
 
 function encrypt(text: string): string {
@@ -36,6 +36,8 @@ const SummarizeAndEncryptSessionInputSchema = z.object({
     .describe(
       'The summary and notes from previous sessions, if they exist.'
     ),
+  userName: z.string().optional().describe("The user's name, if provided."),
+  userIntro: z.string().optional().describe("The user's introduction, if provided."),
 });
 
 export type SummarizeAndEncryptSessionInput = z.infer<
@@ -82,7 +84,7 @@ const summarizeSessionFlow = ai.defineFlow(
     inputSchema: SummarizeAndEncryptSessionInputSchema,
     outputSchema: SummarizeAndEncryptSessionOutputSchema,
   },
-  async ({ chatLog, previousSummary }) => {
+  async ({ chatLog, previousSummary, userName, userIntro }) => {
     const { output: newSummary } = await summarizeSessionPrompt({ chatLog });
     if (!newSummary) {
         throw new Error('Failed to generate session summary.');
@@ -99,8 +101,21 @@ ${newSummary.summary}
 ${newSummary.therapeuticNotes}
 `;
 
-    // Prepend the new record to the previous summary
-    const fullRecord = `${newRecordContent.trim()}\n\n---\n\n${previousSummary || ''}`;
+    let fullRecord;
+    // If it's the first session (no previous summary), create the initial record with patient info.
+    if (!previousSummary && userName) {
+      const patientInfo = `
+# Theraia Patient Record
+
+## Patient Information
+**Name:** ${userName}
+**Initial Introduction:** ${userIntro || 'Not provided.'}
+`;
+      fullRecord = `${patientInfo.trim()}\n\n---\n\n${newRecordContent.trim()}`;
+    } else {
+      // Prepend the new record to the previous summary
+      fullRecord = `${newRecordContent.trim()}\n\n---\n\n${previousSummary || ''}`;
+    }
     
     const encryptedRecord = encrypt(fullRecord.trim());
 

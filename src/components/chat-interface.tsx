@@ -17,7 +17,7 @@ import {
   User,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -33,6 +33,7 @@ interface Message {
 type SessionState =
   | 'initial'
   | 'upload'
+  | 'gatheringInfo' // New state for first-time user onboarding
   | 'chatting'
   | 'concluding'
   | 'concluded';
@@ -43,29 +44,32 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionState, setSessionState] = useState<SessionState>('initial');
   const [sessionHistory, setSessionHistory] = useState<string | undefined>(undefined);
+  const [userName, setUserName] = useState('');
+  const [userIntro, setUserIntro] = useState('');
+  const [infoStep, setInfoStep] = useState<'name' | 'intro'>('name');
+
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
-    if (sessionState === 'initial' || sessionState === 'chatting') {
-      scrollToBottom();
-    }
-  }, [messages, isLoading, sessionState]);
+    scrollToBottom();
+  }, [messages, isLoading, sessionState, scrollToBottom]);
 
   const startFirstSession = () => {
     setMessages([
       {
         role: 'bot',
         content:
-          "Welcome to Theraia. It's brave to take this first step. I'm here to listen. What's on your mind today?",
+          "Welcome to Theraia. It's brave to take this first step. To begin, could you please tell me your name?",
       },
     ]);
-    setSessionState('chatting');
+    setSessionState('gatheringInfo');
+    setInfoStep('name');
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,25 +102,62 @@ export default function ChatInterface() {
       setSessionState('initial');
     } finally {
       setIsLoading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isLoading || sessionState !== 'chatting') return;
-
+  const handleInfoGathering = async () => {
     const userMessage: Message = { role: 'user', content: inputValue };
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = inputValue;
+    setInputValue('');
+    setIsLoading(true);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (infoStep === 'name') {
+      setUserName(currentInput);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'bot',
+          content: `Thank you, ${currentInput}. Now, could you briefly tell me what brings you here today? This will help set a focus for our session.`,
+        },
+      ]);
+      setInfoStep('intro');
+    } else if (infoStep === 'intro') {
+      setUserIntro(currentInput);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'bot',
+          content:
+            "Thank you for sharing that. I'm here to listen. Let's explore this together. What's on your mind?",
+        },
+      ]);
+      setSessionState('chatting');
+    }
+    setIsLoading(false);
+  };
+
+  const handleChatMessage = async () => {
+    const userMessage: Message = { role: 'user', content: inputValue };
+    setMessages((prev) => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
     try {
+      // Prepend intro to the first user message for context
+      const messageWithIntro =
+        userIntro && messages.filter((m) => m.role === 'user').length === 1
+          ? `My introduction: ${userIntro}\n\nMy first message: ${currentInput}`
+          : currentInput;
+          
       const result = await getTherapyResponse({
-        message: userMessage.content,
+        message: messageWithIntro,
         history: sessionHistory,
       });
       const botMessage: Message = { role: 'bot', content: result.response };
@@ -128,9 +169,20 @@ export default function ChatInterface() {
         title: 'Error',
         description: 'Could not connect to the therapist bot. Please try again.',
       });
-      setMessages((prev) => prev.slice(0, -1)); // Remove optimistic user message
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+  
+    if (sessionState === 'gatheringInfo') {
+      handleInfoGathering();
+    } else if (sessionState === 'chatting') {
+      handleChatMessage();
     }
   };
 
@@ -144,21 +196,19 @@ export default function ChatInterface() {
       .join('\n');
 
     try {
-      // 1. Get personalized concluding message
       const { message: concludingMessage } = await generateConcludingMessage({ chatLog });
       const concludingBotMessage: Message = { role: 'bot', content: concludingMessage };
       setMessages((prev) => [...prev, concludingBotMessage]);
 
-      // Give a moment for the user to read the message.
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // 2. Process and encrypt the session
       const { encryptedRecord } = await processAndEncryptSession({
         chatLog,
         previousSummary: sessionHistory,
+        userName: userName || undefined,
+        userIntro: userIntro || undefined,
       });
 
-      // 3. Trigger download
       const blob = new Blob([encryptedRecord], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -169,7 +219,6 @@ export default function ChatInterface() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      // 4. Add final message and set state
       setMessages((prev) => [
         ...prev,
         {
@@ -186,10 +235,20 @@ export default function ChatInterface() {
         title: 'Error Concluding Session',
         description: 'There was an issue generating your session record.',
       });
-      setSessionState('chatting'); // Revert state
+      setSessionState('chatting');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getPlaceholderText = () => {
+    if (sessionState === 'gatheringInfo') {
+      return infoStep === 'name' ? 'Please enter your name...' : 'Briefly describe what you\'d like to talk about...';
+    }
+    if (sessionState === 'chatting') {
+      return 'Type your message here...';
+    }
+    return 'Concluding session...';
   };
 
   const renderInitialScreen = () => (
@@ -261,7 +320,8 @@ export default function ChatInterface() {
         {sessionState === 'initial' && renderInitialScreen()}
         {sessionState === 'upload' && renderUploadScreen()}
 
-        {(sessionState === 'chatting' ||
+        {(sessionState === 'gatheringInfo' ||
+          sessionState === 'chatting' ||
           sessionState === 'concluding' ||
           sessionState === 'concluded') && (
           <div className="space-y-6">
@@ -299,7 +359,7 @@ export default function ChatInterface() {
                 )}
               </div>
             ))}
-            {isLoading && sessionState === 'chatting' && (
+            {isLoading && (sessionState === 'chatting' || sessionState === 'gatheringInfo') && (
               <div className="flex items-start gap-4">
                 <Avatar>
                   <AvatarFallback>
@@ -327,20 +387,16 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {(sessionState === 'chatting' || sessionState === 'concluding') && (
+      {(sessionState === 'gatheringInfo' || sessionState === 'chatting' || sessionState === 'concluding') && (
         <footer className="border-t border-border/50 pt-4">
           <form onSubmit={handleSubmit} className="flex items-start gap-4">
             <Textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={
-                sessionState === 'chatting'
-                  ? 'Type your message here...'
-                  : 'Concluding session...'
-              }
+              placeholder={getPlaceholderText()}
               className="flex-1 resize-none bg-background/80"
               rows={2}
-              disabled={isLoading || sessionState !== 'chatting'}
+              disabled={isLoading || sessionState === 'concluding' || sessionState === 'concluded'}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -352,7 +408,7 @@ export default function ChatInterface() {
               type="submit"
               size="icon"
               disabled={
-                isLoading || !inputValue.trim() || sessionState !== 'chatting'
+                isLoading || !inputValue.trim() || sessionState === 'concluding' || sessionState === 'concluded'
               }
             >
               <Send />
