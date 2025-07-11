@@ -10,6 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const WelcomeBackInputSchema = z.object({
   sessionRecord: z
@@ -62,7 +63,8 @@ const generateWelcomeBackMessageFlow = ai.defineFlow(
     outputSchema: WelcomeBackOutputSchema,
   },
   async (input) => {
-    const { output } = await welcomeBackPrompt(input);
+    const llm = googleAI.model('gemini-1.5-pro-latest');
+    const { output } = await welcomeBackPrompt(input, { llm });
     if (!output) {
       throw new Error('Failed to generate welcome back message.');
     }
