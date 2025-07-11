@@ -44,8 +44,8 @@ const welcomeBackPrompt = ai.definePrompt({
 
 Your task is to:
 1.  Extract the user's name from the "Patient Information" section.
-2.  Briefly scan the most recent session summary to understand what was last discussed.
-3.  Generate a warm, welcoming, and personalized message for the user. Address them by their name. You can gently reference the last session's topic to show you remember them. For example: "Welcome back, [Name]. It's good to see you again. How have you been feeling since we talked about [topic]?"
+2.  Generate a warm, welcoming, and personalized message for the user. Address them by their name.
+3.  The message should show that you remember them without being too direct about their past vulnerabilities. Instead of mentioning a specific topic, use a softer approach. For example: "Welcome back, [Name]. It's good to see you again. How have you been feeling since our last discussion?"
 4.  If you cannot find a name, create a friendly but less specific welcome message.
 
 Patient Record:
