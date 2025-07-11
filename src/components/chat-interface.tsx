@@ -40,6 +40,43 @@ type SessionState =
   | 'concluding'
   | 'concluded';
 
+// Simple Cipher Functions
+const simpleEncrypt = (text: string): string => {
+  return text
+    .split('')
+    .map((char) => {
+      if (char >= 'a' && char <= 'z') {
+        return char === 'z' ? 'a' : String.fromCharCode(char.charCodeAt(0) + 1);
+      }
+      if (char >= 'A' && char <= 'Z') {
+        return char === 'Z' ? 'A' : String.fromCharCode(char.charCodeAt(0) + 1);
+      }
+      if (char >= '0' && char <= '9') {
+        return char === '9' ? '0' : String.fromCharCode(char.charCodeAt(0) + 1);
+      }
+      return char;
+    })
+    .join('');
+};
+
+const simpleDecrypt = (text: string): string => {
+  return text
+    .split('')
+    .map((char) => {
+      if (char >= 'a' && char <= 'z') {
+        return char === 'a' ? 'z' : String.fromCharCode(char.charCodeAt(0) - 1);
+      }
+      if (char >= 'A' && char <= 'Z') {
+        return char === 'A' ? 'Z' : String.fromCharCode(char.charCodeAt(0) - 1);
+      }
+      if (char >= '0' && char <= '9') {
+        return char === '0' ? '9' : String.fromCharCode(char.charCodeAt(0) - 1);
+      }
+      return char;
+    })
+    .join('');
+};
+
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -68,7 +105,7 @@ export default function ChatInterface() {
       {
         role: 'bot',
         content:
-          "Hello! I'm Mindra, your personal AI therapist. To help me get to know you, please feel free to introduce yourself and let me know what's on your mind.",
+          "Hello! Let's start with introductions. You can call me Mindra, your personal AI therapist. Now it's your turn to introduce yourself. Please tell me a bit about what's on your mind.",
       },
     ]);
     setSessionState('gatheringInfo');
@@ -81,7 +118,8 @@ export default function ChatInterface() {
     setSessionState('upload');
 
     try {
-      const sessionRecord = await file.text();
+      const encryptedRecord = await file.text();
+      const sessionRecord = simpleDecrypt(encryptedRecord);
       setSessionHistory(sessionRecord);
 
       const { userName, message } = await getWelcomeBackMessage({
@@ -149,13 +187,11 @@ export default function ChatInterface() {
     try {
       let result;
       if (sessionHistory) {
-        // This is a returning user with an uploaded session
         result = await getContinuedTherapyResponse({
           message: currentInput,
           sessionRecord: sessionHistory,
         });
       } else {
-        // This is a new user or a user in their first session
         result = await getInitialTherapyResponse({
           message: currentInput,
         });
@@ -221,7 +257,8 @@ export default function ChatInterface() {
         userIntro: userIntro || undefined,
       });
 
-      const blob = new Blob([sessionRecord], { type: 'text/plain' });
+      const encryptedRecord = simpleEncrypt(sessionRecord);
+      const blob = new Blob([encryptedRecord], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
