@@ -14,7 +14,8 @@ import {
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-cbc';
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'default_secret_key_32_chars_long';
+// Key must be 32 bytes for aes-256-cbc
+const SECRET_KEY = process.env.ENCRYPTION_KEY || 'a_default_32_byte_secret_key_!!!';
 
 function decrypt(text: string): string {
   try {
@@ -22,7 +23,7 @@ function decrypt(text: string): string {
     if (parts.length !== 2) throw new Error('Invalid encrypted text format');
     const iv = Buffer.from(parts.shift()!, 'hex');
     const encryptedText = Buffer.from(parts.join(':'), 'hex');
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv);
+    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(SECRET_KEY, 'utf-8'), iv);
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
