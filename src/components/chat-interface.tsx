@@ -182,7 +182,7 @@ export default function ChatInterface() {
 
   const renderInitialScreen = () => (
     <div className="flex flex-1 flex-col items-center justify-center space-y-6 text-center">
-      <h2 className="font-headline text-3xl">Welcome back to TheraFlow</h2>
+      <h2 className="font-headline text-3xl">Welcome to TheraFlow</h2>
       <p className="max-w-md text-muted-foreground">
         Is this your first session, or are you returning with a session record?
       </p>
@@ -216,8 +216,8 @@ export default function ChatInterface() {
   );
 
   return (
-    <div className="mx-auto flex h-screen max-w-4xl flex-col p-4 md:p-6">
-      <header className="flex items-center justify-between border-b pb-4">
+    <div className="relative z-10 mx-auto flex h-screen max-w-4xl flex-col p-4 md:p-6">
+      <header className="flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex items-center gap-3">
           <Bot className="h-8 w-8 text-primary" />
           <h1 className="font-headline text-2xl font-bold">
@@ -271,7 +271,7 @@ export default function ChatInterface() {
                   className={`max-w-md ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
-                      : 'bg-card'
+                      : 'bg-card/80'
                   }`}
                 >
                   <CardContent className="whitespace-pre-wrap p-4 font-body">
@@ -294,7 +294,7 @@ export default function ChatInterface() {
                     <Bot />
                   </AvatarFallback>
                 </Avatar>
-                <Card className="max-w-md bg-card">
+                <Card className="max-w-md bg-card/80">
                   <CardContent className="space-y-2 p-4">
                     <Skeleton className="h-4 w-[250px]" />
                     <Skeleton className="h-4 w-[200px]" />
@@ -316,7 +316,7 @@ export default function ChatInterface() {
       </div>
 
       {(sessionState === 'chatting' || sessionState === 'concluding') && (
-        <footer className="border-t pt-4">
+        <footer className="border-t border-border/50 pt-4">
           <form onSubmit={handleSubmit} className="flex items-start gap-4">
             <Textarea
               value={inputValue}
@@ -326,7 +326,7 @@ export default function ChatInterface() {
                   ? 'Type your message here...'
                   : 'Concluding session...'
               }
-              className="flex-1 resize-none"
+              className="flex-1 resize-none bg-background/80"
               rows={2}
               disabled={isLoading || sessionState !== 'chatting'}
               onKeyDown={(e) => {
