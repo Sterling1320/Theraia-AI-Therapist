@@ -104,8 +104,10 @@ export default function ChatInterface() {
     setMessages([
       {
         role: 'bot',
-        content:
-          "Hello! Let's start with introductions. You can call me Mindra, your personal AI therapist. Now it's your turn to introduce yourself. Please tell me a bit about what's on your mind.",
+        content: `Welcome to Theraia. I’m Mindra, your personal AI therapist.
+You can talk to me about anything that’s on your mind — no pressure, just whatever feels right to share.
+
+To begin, why don’t you tell me a little about yourself? Whatever you feel comfortable sharing is perfectly okay.`,
       },
     ]);
     setSessionState('gatheringInfo');
