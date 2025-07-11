@@ -6,8 +6,10 @@ export default function SessionPage() {
     <div
       className="relative min-h-screen bg-cover bg-center"
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1887&auto=format&fit=crop')",
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop')",
       }}
+      data-ai-hint="mountain landscape"
     >
       <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
       <AudioPlayer />
