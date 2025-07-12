@@ -382,7 +382,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       <p className="max-w-md text-lg text-muted-foreground md:text-xl">
         Is this your first session, or are you returning with a session record?
       </p>
-      <div className="flex w-full max-w-xs flex-col items-center space-y-4 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4 sm:space-y-0 sm:items-center">
+      <div className="flex w-full max-w-xs flex-col items-center space-y-4 sm:max-w-sm sm:flex-row sm:justify-center sm:gap-4 sm:space-y-0 sm:items-center">
         <Button onClick={startFirstSession}>This is my first session</Button>
         <Button
           variant="outline"
@@ -444,7 +444,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
   );
 
   return (
-    <div className="relative z-10 mx-auto flex h-screen max-w-4xl flex-col p-2 sm:p-4 md:p-6">
+    <div className="relative z-10 mx-auto flex h-[100svh] max-w-4xl flex-col p-2 sm:p-4 md:p-6">
       <header className="flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
