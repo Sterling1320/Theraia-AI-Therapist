@@ -72,7 +72,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('https://storage.googleapis.com/project-oscar-dev.appspot.com/v1/files/5465529f-f51b-410a-ad57-7bb6642de639/user_content/88b77054-c999-4d6d-b2a8-a5b67ec74641_240723-010041-945.png');
+    background-image: url('/background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
