@@ -21,9 +21,7 @@ export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTrack, setCurrentTrack] = useState('');
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  // This function is wrapped in useCallback to ensure it's stable
   const playRandomTrack = () => {
     if (!audioRef.current) return;
 
@@ -47,10 +45,14 @@ export default function AudioPlayer() {
       audioRef.current.volume = 0.3;
       audioRef.current.addEventListener('ended', playRandomTrack);
 
-      // Try to play on mount
-      playRandomTrack();
+      // This logic prevents the development-mode double-mount race condition
+      let isMounted = true;
+      if (isMounted) {
+        playRandomTrack();
+      }
 
       return () => {
+        isMounted = false;
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current.removeEventListener('ended', playRandomTrack);
@@ -64,7 +66,6 @@ export default function AudioPlayer() {
     if (audioRef.current) {
       const newIsPlaying = !isPlaying;
       if (newIsPlaying) {
-        // If src isn't set, this is the first manual play attempt
         if (!audioRef.current.src) {
             playRandomTrack();
         } else {
