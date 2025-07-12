@@ -27,6 +27,13 @@ import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
 import { Textarea } from './ui/textarea';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 interface Message {
   role: 'user' | 'bot';
@@ -77,6 +84,27 @@ const simpleDecrypt = (text: string): string => {
     })
     .join('');
 };
+
+const stoicQuotes = [
+  {
+    quote:
+      'The happiness of your life depends upon the quality of your thoughts.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote:
+      'Waste no more time arguing about what a good man should be. Be one.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote: 'It is not death that a man should fear, but he should fear never beginning to live.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote: 'First say to yourself what you would be; and then do what you have to do.',
+    author: 'Epictetus',
+  },
+];
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -274,7 +302,10 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = userName && userName !== 'User' ? `${userName}-session-record.txt` : 'theraia_record.txt';
+      a.download =
+        userName && userName !== 'User'
+          ? `${userName}-session-record.txt`
+          : 'theraia_record.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -337,6 +368,38 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           className="hidden"
           accept=".txt"
         />
+      </div>
+      <div className="w-full max-w-md pt-8">
+        <Carousel
+          opts={{
+            align: 'start',
+            loop: true,
+          }}
+          className="w-full"
+        >
+          <CarouselContent>
+            {stoicQuotes.map((item, index) => (
+              <CarouselItem key={index}>
+                <div className="p-1">
+                  <Card>
+                    <CardContent className="flex aspect-video items-center justify-center p-6 text-center">
+                      <div className="space-y-4">
+                        <p className="font-body text-lg italic text-foreground">
+                          &ldquo;{item.quote}&rdquo;
+                        </p>
+                        <p className="font-headline text-muted-foreground">
+                          - {item.author}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
       </div>
     </div>
   );
