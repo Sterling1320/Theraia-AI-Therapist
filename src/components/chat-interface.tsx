@@ -102,15 +102,20 @@ export default function ChatInterface() {
   }, [messages, isLoading, sessionState, scrollToBottom]);
 
   const startFirstSession = () => {
-    setMessages([
-      {
-        role: 'bot',
-        content: `Welcome to Theraia. I’m Sage, your personal AI therapist. You can talk to me about anything that’s on your mind, no pressure, just whatever feels right to share.
+    setIsLoading(true);
+    setSessionState('gatheringInfo');
+
+    setTimeout(() => {
+      setMessages([
+        {
+          role: 'bot',
+          content: `Welcome to Theraia. I’m Sage, your personal AI therapist. You can talk to me about anything that’s on your mind, no pressure, just whatever feels right to share.
 
 To begin, why don’t you tell me a little about yourself? Whatever you feel comfortable sharing is perfectly okay.`,
-      },
-    ]);
-    setSessionState('gatheringInfo');
+        },
+      ]);
+      setIsLoading(false);
+    }, 1500);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -308,9 +313,9 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
   };
 
   const renderInitialScreen = () => (
-    <div className="flex flex-1 flex-col items-center justify-center space-y-6 text-center">
-      <h2 className="font-headline text-3xl">Welcome to Theraia</h2>
-      <p className="max-w-md text-muted-foreground">
+    <div className="flex flex-1 flex-col items-center justify-center space-y-8 text-center">
+      <h2 className="font-headline text-4xl">Welcome to Theraia 🙏</h2>
+      <p className="max-w-md text-lg text-muted-foreground">
         Is this your first session, or are you returning with a session record?
       </p>
       <div className="flex gap-4">
