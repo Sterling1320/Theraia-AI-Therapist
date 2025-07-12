@@ -349,12 +349,12 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           <Image
             src="/icon.JPG"
             alt="Theraia icon"
-            width={32}
-            height={32}
+            width={38}
+            height={38}
             className="rounded-full"
             data-ai-hint="logo"
           />
-          <h1 className="font-headline text-2xl font-bold">Theraia</h1>
+          <h1 className="font-headline text-3xl font-bold">Theraia</h1>
         </Link>
         {sessionState === 'chatting' && (
           <Button
