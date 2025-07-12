@@ -23,64 +23,45 @@ export default function AudioPlayer() {
   }, []);
 
   useEffect(() => {
-    // Only run on the client
     if (typeof window === 'undefined') return;
 
-    // Create a new audio element
-    const audio = new Audio(playlist[currentTrackIndex]);
-    audio.volume = 0.3;
-    audio.loop = false;
-    audio.addEventListener('ended', playNextTrack);
-    audioRef.current = audio;
+    audioRef.current = new Audio(playlist[currentTrackIndex]);
+    audioRef.current.volume = 0.3;
+    audioRef.current.loop = false;
+
+    const currentAudio = audioRef.current;
+    currentAudio.addEventListener('ended', playNextTrack);
 
     if (isPlaying) {
-      // Attempt to play, but catch errors (e.g., autoplay blocked)
-      audio.play().catch((e) => {
-        console.warn('Autoplay prevented:', e.message);
-        setIsPlaying(false); // Reset state if play fails
-      });
-    }
-
-    // Cleanup function
-    return () => {
-      // Pause and release the audio source to prevent memory leaks
-      audio.pause();
-      audio.removeEventListener('ended', playNextTrack);
-      audio.src = ''; // Release the audio source
-      audioRef.current = null;
-    };
-    // Re-run this effect only when the track index changes
-  }, [currentTrackIndex, playNextTrack]);
-
-  // Effect to handle play/pause state changes
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.play().catch((e) => {
-        // Handle cases where play is interrupted or fails
+      currentAudio.play().catch((e) => {
         if (e.name !== 'AbortError') {
-          console.warn('Could not play audio:', e.message);
+          console.warn('Autoplay prevented:', e.message);
           setIsPlaying(false);
         }
       });
-    } else {
-      audioRef.current.pause();
     }
-    // This effect depends only on the isPlaying state
-  }, [isPlaying]);
+    
+    return () => {
+      currentAudio.pause();
+      currentAudio.removeEventListener('ended', playNextTrack);
+      currentAudio.src = '';
+      audioRef.current = null;
+    };
+  }, [currentTrackIndex, isPlaying, playNextTrack]);
+
 
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev);
   };
 
   return (
-    <div className="absolute bottom-[90px] right-4 z-20 md:bottom-24">
+    <div className="flex-shrink-0">
       <Button
         variant="ghost"
         size="icon"
         onClick={togglePlayPause}
         aria-label="Toggle music"
+        className="h-10 w-10"
       >
         {isPlaying ? (
           <Volume2 className="h-8 w-8" />

@@ -548,14 +548,12 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         )}
         <div ref={messagesEndRef} />
       </div>
-      
-      {(sessionState !== 'initial' && sessionState !== 'upload') && <AudioPlayer />}
 
       {(sessionState === 'gatheringInfo' ||
         sessionState === 'chatting' ||
         sessionState === 'concluding') && (
         <footer className="border-t border-border/50 pt-4 flex-shrink-0">
-          <form onSubmit={handleSubmit} className="flex items-start gap-2 md:gap-4">
+          <form onSubmit={handleSubmit} className="flex items-end gap-2 md:gap-4">
             <Textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -574,6 +572,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 }
               }}
             />
+            {sessionState !== 'initial' && sessionState !== 'upload' && <AudioPlayer />}
             <Button
               type="submit"
               size="icon"
