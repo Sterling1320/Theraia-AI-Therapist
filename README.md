@@ -109,12 +109,6 @@ Theraia-AI-Therapist/
 
 ---
 
-## 📸 Screenshots (optional)
-
-> *(Add your app screenshots here if you like)*
-
----
-
 ## 🤝 Contributions
 
 This is a personal project, but feel free to **fork**, suggest improvements, or open issues!
