@@ -23,6 +23,10 @@ export default function AudioPlayer() {
   }, []);
 
   useEffect(() => {
+    // Only run on the client
+    if (typeof window === 'undefined') return;
+
+    // Create a new audio element
     const audio = new Audio(playlist[currentTrackIndex]);
     audio.volume = 0.3;
     audio.loop = false;
@@ -30,25 +34,31 @@ export default function AudioPlayer() {
     audioRef.current = audio;
 
     if (isPlaying) {
+      // Attempt to play, but catch errors (e.g., autoplay blocked)
       audio.play().catch((e) => {
-        // Autoplay was prevented.
         console.warn('Autoplay prevented:', e.message);
-        setIsPlaying(false);
+        setIsPlaying(false); // Reset state if play fails
       });
     }
 
+    // Cleanup function
     return () => {
+      // Pause and release the audio source to prevent memory leaks
       audio.pause();
       audio.removeEventListener('ended', playNextTrack);
-      audio.src = '';
+      audio.src = ''; // Release the audio source
       audioRef.current = null;
     };
+    // Re-run this effect only when the track index changes
   }, [currentTrackIndex, playNextTrack]);
 
+  // Effect to handle play/pause state changes
   useEffect(() => {
     if (!audioRef.current) return;
+
     if (isPlaying) {
       audioRef.current.play().catch((e) => {
+        // Handle cases where play is interrupted or fails
         if (e.name !== 'AbortError') {
           console.warn('Could not play audio:', e.message);
           setIsPlaying(false);
@@ -57,6 +67,7 @@ export default function AudioPlayer() {
     } else {
       audioRef.current.pause();
     }
+    // This effect depends only on the isPlaying state
   }, [isPlaying]);
 
   const togglePlayPause = () => {

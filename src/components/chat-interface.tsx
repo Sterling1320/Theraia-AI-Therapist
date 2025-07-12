@@ -459,7 +459,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
             alt="Theraia icon"
             width={66}
             height={66}
-            className="h-12 w-12 rounded-full md:h-16 md:w-16"
+            className="h-12 w-12 rounded-full object-cover md:h-16 md:w-16"
             data-ai-hint="logo"
           />
           <h1 className="font-headline text-2xl font-bold md:text-3xl">Theraia</h1>

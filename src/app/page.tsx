@@ -20,7 +20,7 @@ export default function Home() {
           alt="Theraia icon"
           width={144}
           height={144}
-          className="mx-auto rounded-full"
+          className="mx-auto rounded-full object-cover"
           data-ai-hint="logo"
           priority
         />
