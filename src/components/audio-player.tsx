@@ -9,9 +9,8 @@ export default function AudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    audioRef.current = new Audio(
-      'https://cdn.pixabay.com/audio/2022/10/18/audio_731a29de99.mp3'
-    );
+    // Update this to use the local audio file from the /public folder
+    audioRef.current = new Audio('/calm-music.mp3');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3;
 
