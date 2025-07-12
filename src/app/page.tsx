@@ -11,8 +11,8 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
-      <div className="max-w-2xl text-center">
+    <main className="flex min-h-screen flex-col items-center justify-center p-8">
+      <div className="relative max-w-2xl text-center">
         <Bot className="mx-auto h-24 w-24 text-primary" />
         <h1 className="mt-4 text-5xl font-bold font-headline text-foreground">
           Welcome to Theraia
