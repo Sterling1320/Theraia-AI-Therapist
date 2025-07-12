@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -94,12 +95,12 @@ const stoicQuotes = [
   },
   {
     quote:
-      'Waste no more time arguing about what a good man should be. Be one.',
+      'Waste no more time arguing about what a good person should be. Be one.',
     author: 'Marcus Aurelius',
   },
   {
     quote:
-      'It is not death that a man should fear, but he should fear never beginning to live.',
+      'It is not death that a person should fear, but they should fear never beginning to live.',
     author: 'Marcus Aurelius',
   },
   {
@@ -114,7 +115,7 @@ const stoicQuotes = [
   },
   {
     quote:
-      'Nowhere can a man find a quieter or more troubled retreat than in his own soul.',
+      'Nowhere can a person find a quieter or more troubled retreat than in their own soul.',
     author: 'Marcus Aurelius',
   },
   {
@@ -124,7 +125,7 @@ const stoicQuotes = [
   },
   {
     quote:
-      'It is not the man who has too little, but the man who craves more, that is poor.',
+      'It is not the person who has too little, but the person who craves more, that is poor.',
     author: 'Lucius Annaeus Seneca',
   },
   {
