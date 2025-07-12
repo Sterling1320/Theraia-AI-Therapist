@@ -102,9 +102,8 @@ export default function ChatInterface() {
   }, [messages, isLoading, sessionState, scrollToBottom]);
 
   const startFirstSession = () => {
-    setIsLoading(true);
     setSessionState('gatheringInfo');
-
+    setIsLoading(true);
     setTimeout(() => {
       setMessages([
         {
@@ -280,12 +279,15 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      const finalMessage = sessionHistory
+        ? 'That brings our session to a close. I’ve prepared your updated session record — feel free to overwrite the previous one or delete it if you prefer. Be sure to keep the new record safe for our next conversation. Take care until then.'
+        : 'Our session has now concluded. Your session record has been downloaded. Please keep it safe for our next session. Take care.';
+
       setMessages((prev) => [
         ...prev,
         {
           role: 'bot',
-          content:
-            'Our session has now concluded. Your session record has been downloaded. Please keep it safe for our next session. Take care.',
+          content: finalMessage,
         },
       ]);
       setSessionState('concluded');
