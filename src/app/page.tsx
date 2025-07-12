@@ -6,14 +6,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Bot, Play, Lock } from 'lucide-react';
+import { Play, Lock } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="relative max-w-2xl text-center">
-        <Bot className="mx-auto h-24 w-24 text-primary" />
+        <Image
+          src="/icon.jpg"
+          alt="Theraia icon"
+          width={96}
+          height={96}
+          className="mx-auto"
+          data-ai-hint="logo"
+          priority
+        />
         <h1 className="mt-4 text-5xl font-bold font-headline text-foreground">
           Welcome to Theraia
         </h1>

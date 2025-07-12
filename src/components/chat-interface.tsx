@@ -10,7 +10,6 @@ import {
 } from '@/app/session/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
-  Bot,
   Download,
   FileUp,
   Loader2,
@@ -19,8 +18,9 @@ import {
   User,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
@@ -345,7 +345,14 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
     <div className="relative z-10 mx-auto flex h-screen max-w-4xl flex-col p-4 md:p-6">
       <header className="flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex items-center gap-3">
-          <Bot className="h-8 w-8 text-primary" />
+          <Image
+            src="/icon.jpg"
+            alt="Theraia icon"
+            width={32}
+            height={32}
+            className="rounded-full"
+            data-ai-hint="logo"
+          />
           <h1 className="font-headline text-2xl font-bold">Theraia</h1>
         </Link>
         {sessionState === 'chatting' && (
@@ -384,9 +391,8 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
               >
                 {message.role === 'bot' && (
                   <Avatar>
-                    <AvatarFallback>
-                      <Bot />
-                    </AvatarFallback>
+                    <AvatarImage src="/icon.jpg" alt="Theraia icon" />
+                    <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                 )}
                 <Card
@@ -414,9 +420,8 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 sessionState === 'gatheringInfo') && (
                 <div className="flex items-start gap-4">
                   <Avatar>
-                    <AvatarFallback>
-                      <Bot />
-                    </AvatarFallback>
+                    <AvatarImage src="/icon.jpg" alt="Theraia icon" />
+                    <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                   <Card className="max-w-md bg-card/80">
                     <CardContent className="space-y-2 p-4">
