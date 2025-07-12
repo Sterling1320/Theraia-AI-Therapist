@@ -104,6 +104,7 @@ export default function ChatInterface() {
   const startFirstSession = () => {
     setSessionState('gatheringInfo');
     setIsLoading(true);
+    setMessages([]); // Clear any previous state
     setTimeout(() => {
       setMessages([
         {
@@ -316,11 +317,11 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
 
   const renderInitialScreen = () => (
     <div className="flex flex-1 flex-col items-center justify-center space-y-8 text-center">
-      <h2 className="font-headline text-4xl">Welcome to Theraia 🙏</h2>
-      <p className="max-w-md text-lg text-muted-foreground">
+      <h2 className="font-headline text-4xl md:text-5xl">Welcome to Theraia 🙏</h2>
+      <p className="max-w-md text-lg text-muted-foreground md:text-xl">
         Is this your first session, or are you returning with a session record?
       </p>
-      <div className="flex gap-4">
+      <div className="flex w-full max-w-xs flex-col space-y-4 sm:max-w-none sm:flex-row sm:justify-center sm:space-y-0 sm:gap-4">
         <Button onClick={startFirstSession}>This is my first session</Button>
         <Button
           variant="outline"
@@ -350,7 +351,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
   );
 
   return (
-    <div className="relative z-10 mx-auto flex h-screen max-w-4xl flex-col p-4 md:p-6">
+    <div className="relative z-10 mx-auto flex h-screen max-w-4xl flex-col p-2 sm:p-4 md:p-6">
       <header className="flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
@@ -381,7 +382,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         )}
       </header>
 
-      <div className="my-6 flex-1 overflow-y-auto pr-4">
+      <div className="my-4 flex-1 overflow-y-auto pr-2 md:my-6 md:pr-4">
         {sessionState === 'initial' && renderInitialScreen()}
         {sessionState === 'upload' && renderUploadScreen()}
 
@@ -389,28 +390,28 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           sessionState === 'chatting' ||
           sessionState === 'concluding' ||
           sessionState === 'concluded') && (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex items-start gap-4 ${
+                className={`flex items-start gap-3 md:gap-4 ${
                   message.role === 'user' ? 'justify-end' : ''
                 }`}
               >
                 {message.role === 'bot' && (
-                  <Avatar className="h-12 w-12">
+                  <Avatar className="h-12 w-12 flex-shrink-0">
                     <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                 )}
                 <Card
-                  className={`max-w-md ${
+                  className={`max-w-[85%] sm:max-w-md ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-card/80'
                   }`}
                 >
-                  <CardContent className="whitespace-pre-wrap p-4 font-body">
+                  <CardContent className="whitespace-pre-wrap p-3 font-body md:p-4">
                     {message.content}
                   </CardContent>
                 </Card>
@@ -420,7 +421,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
               (sessionState === 'chatting' ||
                 sessionState === 'gatheringInfo') && (
                 <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12">
+                  <Avatar className="h-12 w-12 flex-shrink-0">
                     <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
@@ -449,7 +450,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         sessionState === 'chatting' ||
         sessionState === 'concluding') && (
         <footer className="border-t border-border/50 pt-4">
-          <form onSubmit={handleSubmit} className="flex items-start gap-4">
+          <form onSubmit={handleSubmit} className="flex items-start gap-2 md:gap-4">
             <Textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
