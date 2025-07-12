@@ -391,7 +391,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 }`}
               >
                 {message.role === 'bot' && (
-                  <Avatar>
+                  <Avatar className="h-12 w-12">
                     <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
@@ -407,20 +407,13 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                     {message.content}
                   </CardContent>
                 </Card>
-                {message.role === 'user' && (
-                  <Avatar>
-                    <AvatarFallback>
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
               </div>
             ))}
             {isLoading &&
               (sessionState === 'chatting' ||
                 sessionState === 'gatheringInfo') && (
                 <div className="flex items-start gap-4">
-                  <Avatar>
+                  <Avatar className="h-12 w-12">
                     <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
