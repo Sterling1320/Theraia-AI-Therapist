@@ -104,7 +104,7 @@ export default function ChatInterface() {
     setMessages([
       {
         role: 'bot',
-        content: `Welcome to Theraia. I’m Mindra, your personal AI therapist. You can talk to me about anything that’s on your mind, no pressure, just whatever feels right to share.
+        content: `Welcome to Theraia. I’m Sage, your personal AI therapist. You can talk to me about anything that’s on your mind, no pressure, just whatever feels right to share.
 
 To begin, why don’t you tell me a little about yourself? Whatever you feel comfortable sharing is perfectly okay.`,
       },
