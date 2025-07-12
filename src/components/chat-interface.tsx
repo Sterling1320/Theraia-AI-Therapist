@@ -399,7 +399,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           accept=".txt"
         />
       </div>
-      <div className="w-full max-w-md pt-8">
+      <div className="w-full max-w-sm pt-8">
         <Carousel
           opts={{
             align: 'start',
