@@ -18,8 +18,8 @@ export default function Home() {
         <Image
           src="/icon.JPG"
           alt="Theraia icon"
-          width={96}
-          height={96}
+          width={144}
+          height={144}
           className="mx-auto rounded-full"
           data-ai-hint="logo"
           priority
