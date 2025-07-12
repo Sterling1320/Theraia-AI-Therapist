@@ -15,7 +15,7 @@ const playlist = [
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
   const playNextTrack = useCallback(() => {
@@ -25,47 +25,39 @@ export default function AudioPlayer() {
   useEffect(() => {
     const audio = new Audio(playlist[currentTrackIndex]);
     audio.volume = 0.3;
+    audio.loop = false;
     audio.addEventListener('ended', playNextTrack);
     audioRef.current = audio;
 
     if (isPlaying) {
       audio.play().catch((e) => {
-        if (e.name === 'NotAllowedError') {
-          console.log('Autoplay was prevented. User interaction is needed.');
-          setIsPlaying(false);
-        } else {
-          console.error('Audio play error:', e);
-        }
+        // Autoplay was prevented.
+        console.warn('Autoplay prevented:', e.message);
+        setIsPlaying(false);
       });
     }
 
     return () => {
       audio.pause();
       audio.removeEventListener('ended', playNextTrack);
-      audio.src = ''; // Unload the audio source
+      audio.src = '';
+      audioRef.current = null;
     };
-  }, []);
+  }, [currentTrackIndex, playNextTrack]);
 
   useEffect(() => {
     if (!audioRef.current) return;
-
-    audioRef.current.src = playlist[currentTrackIndex];
-
     if (isPlaying) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          if (error.name === 'NotAllowedError') {
-            setIsPlaying(false);
-          } else {
-            console.error('Audio play error:', error);
-          }
-        });
-      }
+      audioRef.current.play().catch((e) => {
+        if (e.name !== 'AbortError') {
+          console.warn('Could not play audio:', e.message);
+          setIsPlaying(false);
+        }
+      });
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying, currentTrackIndex]);
+  }, [isPlaying]);
 
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev);
