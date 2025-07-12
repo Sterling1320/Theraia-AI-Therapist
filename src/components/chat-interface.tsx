@@ -349,8 +349,8 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           <Image
             src="/icon.JPG"
             alt="Theraia icon"
-            width={38}
-            height={38}
+            width={66}
+            height={66}
             className="rounded-full"
             data-ai-hint="logo"
           />
@@ -392,7 +392,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
               >
                 {message.role === 'bot' && (
                   <Avatar>
-                    <AvatarImage src="/icon.JPG" alt="Theraia icon" />
+                    <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                 )}
@@ -421,7 +421,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 sessionState === 'gatheringInfo') && (
                 <div className="flex items-start gap-4">
                   <Avatar>
-                    <AvatarImage src="/icon.JPG" alt="Theraia icon" />
+                    <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                   <Card className="max-w-md bg-card/80">
