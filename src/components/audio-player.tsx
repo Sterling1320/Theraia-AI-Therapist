@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -18,11 +19,14 @@ const playlist = [
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [currentTrack, setCurrentTrack] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // This function is wrapped in useCallback to ensure it's stable
   const playRandomTrack = () => {
-    // This check prevents picking the same track twice in a row.
+    if (!audioRef.current) return;
+
     let randomIndex;
     let nextTrack;
     do {
@@ -31,25 +35,19 @@ export default function AudioPlayer() {
     } while (nextTrack === currentTrack && playlist.length > 1);
 
     setCurrentTrack(nextTrack);
-
-    if (audioRef.current) {
-      audioRef.current.src = nextTrack;
-      if (isPlaying) {
-        audioRef.current.play().catch(console.error);
-      }
+    audioRef.current.src = nextTrack;
+    if (isPlaying) {
+      audioRef.current.play().catch(console.error);
     }
   };
 
   useEffect(() => {
-    // We need to check if window is defined to avoid issues with server-side rendering.
     if (typeof window !== 'undefined') {
       audioRef.current = new Audio();
       audioRef.current.volume = 0.3;
-
-      // When a track ends, play another random one
       audioRef.current.addEventListener('ended', playRandomTrack);
 
-      // Select the first track to play
+      // Try to play on mount
       playRandomTrack();
 
       return () => {
@@ -59,24 +57,23 @@ export default function AudioPlayer() {
         }
       };
     }
-  }, []); // This effect runs only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const togglePlayPause = () => {
     if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        // If the src is not set, it means it's the very first play action.
+      const newIsPlaying = !isPlaying;
+      if (newIsPlaying) {
+        // If src isn't set, this is the first manual play attempt
         if (!audioRef.current.src) {
-          playRandomTrack(); // This will set the src and then the play() call will work.
+            playRandomTrack();
+        } else {
+            audioRef.current.play().catch(console.error);
         }
-        audioRef.current
-          .play()
-          .catch((error) =>
-            console.error('Audio playback failed:', error)
-          );
+      } else {
+        audioRef.current.pause();
       }
-      setIsPlaying(!isPlaying);
+      setIsPlaying(newIsPlaying);
     }
   };
 
@@ -89,9 +86,9 @@ export default function AudioPlayer() {
         aria-label="Toggle music"
       >
         {isPlaying ? (
-          <Volume2 className="h-6 w-6" />
+          <Volume2 className="h-8 w-8" />
         ) : (
-          <VolumeX className="h-6 w-6" />
+          <VolumeX className="h-8 w-8" />
         )}
       </Button>
     </div>
