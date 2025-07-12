@@ -8,9 +8,12 @@ import { Volume2, VolumeX } from 'lucide-react';
 // Add your music file paths here.
 // They must be in the `public/calm-music` folder.
 const playlist = [
-  '/calm-music/track1.mp3', // Replace with your actual filenames
-  '/calm-music/track2.mp3',
-  '/calm-music/track3.mp3',
+  '/calm-music/1.mp3',
+  '/calm-music/2.mp3',
+  '/calm-music/3.mp3',
+  '/calm-music/4.mp3',
+  '/calm-music/5.mp3',
+  '/calm-music/6.mp3',
 ];
 
 export default function AudioPlayer() {
@@ -19,12 +22,18 @@ export default function AudioPlayer() {
   const [currentTrack, setCurrentTrack] = useState('');
 
   const playRandomTrack = () => {
-    const randomIndex = Math.floor(Math.random() * playlist.length);
-    const track = playlist[randomIndex];
-    setCurrentTrack(track);
+    // This check prevents picking the same track twice in a row.
+    let randomIndex;
+    let nextTrack;
+    do {
+      randomIndex = Math.floor(Math.random() * playlist.length);
+      nextTrack = playlist[randomIndex];
+    } while (nextTrack === currentTrack && playlist.length > 1);
+
+    setCurrentTrack(nextTrack);
 
     if (audioRef.current) {
-      audioRef.current.src = track;
+      audioRef.current.src = nextTrack;
       if (isPlaying) {
         audioRef.current.play().catch(console.error);
       }
@@ -32,19 +41,24 @@ export default function AudioPlayer() {
   };
 
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.volume = 0.3;
+    // We need to check if window is defined to avoid issues with server-side rendering.
+    if (typeof window !== 'undefined') {
+      audioRef.current = new Audio();
+      audioRef.current.volume = 0.3;
 
-    // When a track ends, play another random one
-    audioRef.current.addEventListener('ended', playRandomTrack);
-    
-    // Select the first track to play
-    playRandomTrack();
+      // When a track ends, play another random one
+      audioRef.current.addEventListener('ended', playRandomTrack);
 
-    return () => {
-      audioRef.current?.pause();
-      audioRef.current?.removeEventListener('ended', playRandomTrack);
-    };
+      // Select the first track to play
+      playRandomTrack();
+
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.removeEventListener('ended', playRandomTrack);
+        }
+      };
+    }
   }, []); // This effect runs only once on mount
 
   const togglePlayPause = () => {
@@ -52,10 +66,15 @@ export default function AudioPlayer() {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
+        // If the src is not set, it means it's the very first play action.
         if (!audioRef.current.src) {
-           playRandomTrack();
+          playRandomTrack(); // This will set the src and then the play() call will work.
         }
-        audioRef.current.play().catch((error) => console.error('Audio playback failed:', error));
+        audioRef.current
+          .play()
+          .catch((error) =>
+            console.error('Audio playback failed:', error)
+          );
       }
       setIsPlaying(!isPlaying);
     }
