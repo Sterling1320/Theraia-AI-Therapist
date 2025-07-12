@@ -410,7 +410,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           }}
           plugins={[
             Autoplay({
-              delay: 4000,
+              delay: 5000,
             }),
           ]}
           className="w-full"
