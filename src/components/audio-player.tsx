@@ -1,13 +1,9 @@
-
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
 
-// --- Playlist ---
-// Add your music file paths here.
-// They must be in the `public/calm-music` folder.
 const playlist = [
   '/calm-music/1.mp3',
   '/calm-music/2.mp3',
@@ -27,37 +23,38 @@ export default function AudioPlayer() {
   }, []);
 
   useEffect(() => {
-    // This effect runs only once to initialize the audio element.
-    const audio = new Audio();
+    const audio = new Audio(playlist[currentTrackIndex]);
     audio.volume = 0.3;
     audio.addEventListener('ended', playNextTrack);
     audioRef.current = audio;
 
-    // Set initial track
-    audio.src = playlist[currentTrackIndex];
+    if (isPlaying) {
+      audio.play().catch((e) => {
+        if (e.name === 'NotAllowedError') {
+          console.log('Autoplay was prevented. User interaction is needed.');
+          setIsPlaying(false);
+        } else {
+          console.error('Audio play error:', e);
+        }
+      });
+    }
 
-    // Cleanup on component unmount
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener('ended', playNextTrack);
-        audioRef.current = null;
-      }
+      audio.pause();
+      audio.removeEventListener('ended', playNextTrack);
+      audio.src = ''; // Unload the audio source
     };
-  }, [playNextTrack]); // The dependency array is correct.
+  }, []);
 
   useEffect(() => {
-    // This effect handles playing/pausing and track changes.
     if (!audioRef.current) return;
 
     audioRef.current.src = playlist[currentTrackIndex];
 
     if (isPlaying) {
-      // We must handle the promise returned by play()
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
-          // Autoplay was prevented.
           if (error.name === 'NotAllowedError') {
             setIsPlaying(false);
           } else {
@@ -75,7 +72,7 @@ export default function AudioPlayer() {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-20">
+    <div className="absolute bottom-[90px] right-4 z-20 md:bottom-24">
       <Button
         variant="ghost"
         size="icon"

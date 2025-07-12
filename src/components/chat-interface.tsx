@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -34,8 +33,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import Autoplay from "embla-carousel-autoplay"
-
+import Autoplay from 'embla-carousel-autoplay';
+import AudioPlayer from './audio-player';
 
 interface Message {
   role: 'user' | 'bot';
@@ -133,7 +132,8 @@ const stoicQuotes = [
     author: 'Epictetus',
   },
   {
-    quote: 'To wish to be well is a part of becoming well.',
+    quote:
+      'To wish to be well is a part of becoming well.',
     author: 'Lucius Annaeus Seneca',
   },
 ];
@@ -452,7 +452,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
 
   return (
     <div className="relative z-10 mx-auto flex h-[100svh] max-w-4xl flex-col p-2 sm:p-4 md:p-6">
-      <header className="flex items-center justify-between border-b border-border/50 pb-4 pr-16 md:pr-0">
+      <header className="flex flex-shrink-0 items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex flex-shrink-0 items-center gap-2 md:gap-3">
           <Image
             src="/icon.JPG"
@@ -548,11 +548,13 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         )}
         <div ref={messagesEndRef} />
       </div>
+      
+      {(sessionState !== 'initial' && sessionState !== 'upload') && <AudioPlayer />}
 
       {(sessionState === 'gatheringInfo' ||
         sessionState === 'chatting' ||
         sessionState === 'concluding') && (
-        <footer className="border-t border-border/50 pt-4">
+        <footer className="border-t border-border/50 pt-4 flex-shrink-0">
           <form onSubmit={handleSubmit} className="flex items-start gap-2 md:gap-4">
             <Textarea
               value={inputValue}

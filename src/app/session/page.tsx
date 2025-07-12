@@ -1,4 +1,3 @@
-import AudioPlayer from '@/components/audio-player';
 import ChatInterface from '@/components/chat-interface';
 
 export default function SessionPage() {
@@ -7,7 +6,6 @@ export default function SessionPage() {
       className="relative min-h-screen"
       data-ai-hint="mountain landscape"
     >
-      <AudioPlayer />
       <ChatInterface />
     </div>
   );
