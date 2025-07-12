@@ -35,49 +35,49 @@ export default function AudioPlayer() {
     setCurrentTrack(nextTrack);
     audioRef.current.src = nextTrack;
     if (isPlaying) {
-      audioRef.current.play().catch(console.error);
+      audioRef.current.play().catch((error) => {
+        if (error.name !== 'AbortError') {
+          console.error('Audio play failed:', error);
+        }
+      });
     }
   }, [currentTrack, isPlaying]);
 
   useEffect(() => {
-    // This effect runs only once on the client side
-    audioRef.current = new Audio();
-    audioRef.current.volume = 0.3;
-    audioRef.current.addEventListener('ended', playRandomTrack);
-
-    // Initial play call
-    if (isPlaying) {
-      playRandomTrack();
+    // Create audio element once.
+    if (!audioRef.current) {
+      const audio = new Audio();
+      audio.volume = 0.3;
+      audio.addEventListener('ended', playRandomTrack);
+      audioRef.current = audio;
     }
-    
-    return () => {
-      // Cleanup when the component unmounts
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener('ended', playRandomTrack);
+
+    if (isPlaying) {
+      if (!audioRef.current.src) {
+        playRandomTrack();
+      } else {
+        audioRef.current.play().catch((error) => {
+          if (error.name !== 'AbortError') {
+            console.error('Audio play failed:', error);
+          }
+        });
       }
+    } else {
+      audioRef.current.pause();
+    }
+
+    return () => {
+      // Only remove the event listener on final cleanup.
+      // We don't want to pause here as it causes issues in React 18 strict mode.
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array ensures it runs once on mount
+  }, [isPlaying, playRandomTrack]);
 
   const togglePlayPause = () => {
-    if (audioRef.current) {
-      const newIsPlaying = !isPlaying;
-      if (newIsPlaying) {
-        if (!audioRef.current.src) {
-            playRandomTrack();
-        } else {
-            audioRef.current.play().catch(console.error);
-        }
-      } else {
-        audioRef.current.pause();
-      }
-      setIsPlaying(newIsPlaying);
-    }
+    setIsPlaying((prev) => !prev);
   };
 
   return (
-    <div className="fixed top-4 right-4 z-10">
+    <div className="fixed top-4 right-4 z-20">
       <Button
         variant="ghost"
         size="icon"

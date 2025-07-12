@@ -34,6 +34,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import Autoplay from "embla-carousel-autoplay"
+
 
 interface Message {
   role: 'user' | 'bot';
@@ -382,7 +384,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       <p className="max-w-md text-lg text-muted-foreground md:text-xl">
         Is this your first session, or are you returning with a session record?
       </p>
-      <div className="flex w-full max-w-xs flex-col items-center space-y-4 sm:max-w-sm sm:flex-row sm:justify-center sm:gap-4 sm:space-y-0 sm:items-center">
+      <div className="flex w-full max-w-sm flex-col items-stretch space-y-4 sm:flex-row sm:justify-center sm:gap-4 sm:space-y-0 sm:items-center">
         <Button onClick={startFirstSession}>This is my first session</Button>
         <Button
           variant="outline"
@@ -405,6 +407,11 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
             align: 'start',
             loop: true,
           }}
+          plugins={[
+            Autoplay({
+              delay: 4000,
+            }),
+          ]}
           className="w-full"
         >
           <CarouselContent>
