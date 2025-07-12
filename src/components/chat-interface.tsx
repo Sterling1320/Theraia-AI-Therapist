@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -346,7 +347,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       <header className="flex items-center justify-between border-b border-border/50 pb-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/icon.jpg"
+            src="/icon.JPG"
             alt="Theraia icon"
             width={32}
             height={32}
@@ -391,7 +392,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
               >
                 {message.role === 'bot' && (
                   <Avatar>
-                    <AvatarImage src="/icon.jpg" alt="Theraia icon" />
+                    <AvatarImage src="/icon.JPG" alt="Theraia icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                 )}
@@ -420,7 +421,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 sessionState === 'gatheringInfo') && (
                 <div className="flex items-start gap-4">
                   <Avatar>
-                    <AvatarImage src="/icon.jpg" alt="Theraia icon" />
+                    <AvatarImage src="/icon.JPG" alt="Theraia icon" />
                     <AvatarFallback>S</AvatarFallback>
                   </Avatar>
                   <Card className="max-w-md bg-card/80">

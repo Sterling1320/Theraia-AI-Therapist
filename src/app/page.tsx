@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,11 +16,11 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="relative max-w-2xl text-center">
         <Image
-          src="/icon.jpg"
+          src="/icon.JPG"
           alt="Theraia icon"
           width={96}
           height={96}
-          className="mx-auto"
+          className="mx-auto rounded-full"
           data-ai-hint="logo"
           priority
         />
