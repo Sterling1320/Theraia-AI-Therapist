@@ -22,7 +22,7 @@ export default function AudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTrack, setCurrentTrack] = useState('');
 
-  const playRandomTrack = () => {
+  const playRandomTrack = useCallback(() => {
     if (!audioRef.current) return;
 
     let randomIndex;
@@ -37,30 +37,28 @@ export default function AudioPlayer() {
     if (isPlaying) {
       audioRef.current.play().catch(console.error);
     }
-  };
+  }, [currentTrack, isPlaying]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      audioRef.current = new Audio();
-      audioRef.current.volume = 0.3;
-      audioRef.current.addEventListener('ended', playRandomTrack);
+    // This effect runs only once on the client side
+    audioRef.current = new Audio();
+    audioRef.current.volume = 0.3;
+    audioRef.current.addEventListener('ended', playRandomTrack);
 
-      // This logic prevents the development-mode double-mount race condition
-      let isMounted = true;
-      if (isMounted) {
-        playRandomTrack();
-      }
-
-      return () => {
-        isMounted = false;
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.removeEventListener('ended', playRandomTrack);
-        }
-      };
+    // Initial play call
+    if (isPlaying) {
+      playRandomTrack();
     }
+    
+    return () => {
+      // Cleanup when the component unmounts
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener('ended', playRandomTrack);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // Empty dependency array ensures it runs once on mount
 
   const togglePlayPause = () => {
     if (audioRef.current) {

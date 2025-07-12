@@ -321,7 +321,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       <p className="max-w-md text-lg text-muted-foreground md:text-xl">
         Is this your first session, or are you returning with a session record?
       </p>
-      <div className="flex w-full max-w-xs flex-col space-y-4 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
+      <div className="flex w-full max-w-xs flex-col items-center space-y-4 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
         <Button onClick={startFirstSession}>This is my first session</Button>
         <Button
           variant="outline"
@@ -405,7 +405,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                   </Avatar>
                 )}
                 <Card
-                  className={`max-w-[85%] sm:max-w-md ${
+                  className={`max-w-[85%] sm:max-w-md md:max-w-lg ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-card/80'
@@ -488,5 +488,3 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
     </div>
   );
 }
-
-    
