@@ -20,64 +20,62 @@ const playlist = [
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [currentTrack, setCurrentTrack] = useState('');
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
-  const playRandomTrack = useCallback(() => {
-    if (!audioRef.current) return;
-
-    let randomIndex;
-    let nextTrack;
-    do {
-      randomIndex = Math.floor(Math.random() * playlist.length);
-      nextTrack = playlist[randomIndex];
-    } while (nextTrack === currentTrack && playlist.length > 1);
-
-    setCurrentTrack(nextTrack);
-    audioRef.current.src = nextTrack;
-    if (isPlaying) {
-      audioRef.current.play().catch((error) => {
-        if (error.name !== 'AbortError') {
-          console.error('Audio play failed:', error);
-        }
-      });
-    }
-  }, [currentTrack, isPlaying]);
+  const playNextTrack = useCallback(() => {
+    setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % playlist.length);
+  }, []);
 
   useEffect(() => {
-    // Create audio element once.
-    if (!audioRef.current) {
-      const audio = new Audio();
-      audio.volume = 0.3;
-      audio.addEventListener('ended', playRandomTrack);
-      audioRef.current = audio;
-    }
+    // This effect runs only once to initialize the audio element.
+    const audio = new Audio();
+    audio.volume = 0.3;
+    audio.addEventListener('ended', playNextTrack);
+    audioRef.current = audio;
+
+    // Set initial track
+    audio.src = playlist[currentTrackIndex];
+
+    // Cleanup on component unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener('ended', playNextTrack);
+        audioRef.current = null;
+      }
+    };
+  }, [playNextTrack]); // The dependency array is correct.
+
+  useEffect(() => {
+    // This effect handles playing/pausing and track changes.
+    if (!audioRef.current) return;
+
+    audioRef.current.src = playlist[currentTrackIndex];
 
     if (isPlaying) {
-      if (!audioRef.current.src) {
-        playRandomTrack();
-      } else {
-        audioRef.current.play().catch((error) => {
-          if (error.name !== 'AbortError') {
-            console.error('Audio play failed:', error);
+      // We must handle the promise returned by play()
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          // Autoplay was prevented.
+          if (error.name === 'NotAllowedError') {
+            setIsPlaying(false);
+          } else {
+            console.error('Audio play error:', error);
           }
         });
       }
     } else {
       audioRef.current.pause();
     }
-
-    return () => {
-      // Only remove the event listener on final cleanup.
-      // We don't want to pause here as it causes issues in React 18 strict mode.
-    };
-  }, [isPlaying, playRandomTrack]);
+  }, [isPlaying, currentTrackIndex]);
 
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev);
   };
 
   return (
-    <div className="fixed top-4 right-4 z-20">
+    <div className="absolute top-4 right-4 z-20">
       <Button
         variant="ghost"
         size="icon"

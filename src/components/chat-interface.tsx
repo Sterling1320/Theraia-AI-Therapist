@@ -452,34 +452,37 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
 
   return (
     <div className="relative z-10 mx-auto flex h-[100svh] max-w-4xl flex-col p-2 sm:p-4 md:p-6">
-      <header className="flex items-center justify-between border-b border-border/50 pb-4">
-        <Link href="/" className="flex items-center gap-3">
+      <header className="flex items-center justify-between border-b border-border/50 pb-4 pr-16 md:pr-0">
+        <Link href="/" className="flex flex-shrink-0 items-center gap-2 md:gap-3">
           <Image
             src="/icon.JPG"
             alt="Theraia icon"
             width={66}
             height={66}
-            className="rounded-full"
+            className="h-12 w-12 rounded-full md:h-16 md:w-16"
             data-ai-hint="logo"
           />
-          <h1 className="font-headline text-3xl font-bold">Theraia</h1>
+          <h1 className="font-headline text-2xl font-bold md:text-3xl">Theraia</h1>
         </Link>
-        {sessionState === 'chatting' && (
-          <Button
-            variant="outline"
-            onClick={handleConcludeSession}
-            disabled={isLoading || messages.length < 2}
-          >
-            <Pause className="mr-2" />
-            Conclude Session
-          </Button>
-        )}
-        {sessionState === 'concluding' && (
-          <Button variant="outline" disabled>
-            <Loader2 className="mr-2 animate-spin" />
-            Concluding...
-          </Button>
-        )}
+        <div className="flex-shrink-0">
+          {sessionState === 'chatting' && (
+            <Button
+              variant="outline"
+              onClick={handleConcludeSession}
+              disabled={isLoading || messages.length < 2}
+              className="whitespace-nowrap"
+            >
+              <Pause className="mr-2 h-4 w-4" />
+              Conclude Session
+            </Button>
+          )}
+          {sessionState === 'concluding' && (
+            <Button variant="outline" disabled className="whitespace-nowrap">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Concluding...
+            </Button>
+          )}
+        </div>
       </header>
 
       <div className="my-4 flex-1 overflow-y-auto pr-2 md:my-6 md:pr-4">
