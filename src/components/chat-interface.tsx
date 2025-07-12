@@ -274,7 +274,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'theraia_record.txt';
+      a.download = userName && userName !== 'User' ? `${userName}-session-record.txt` : 'theraia_record.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -321,7 +321,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
       <p className="max-w-md text-lg text-muted-foreground md:text-xl">
         Is this your first session, or are you returning with a session record?
       </p>
-      <div className="flex w-full max-w-xs flex-col space-y-4 sm:max-w-none sm:flex-row sm:justify-center sm:space-y-0 sm:gap-4">
+      <div className="flex w-full max-w-xs flex-col space-y-4 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4">
         <Button onClick={startFirstSession}>This is my first session</Button>
         <Button
           variant="outline"
@@ -488,3 +488,5 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
     </div>
   );
 }
+
+    
