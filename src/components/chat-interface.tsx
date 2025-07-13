@@ -88,56 +88,56 @@ const simpleDecrypt = (text: string): string => {
 };
 
 const stoicQuotes = [
-  {
-    quote:
-      'The happiness of your life depends upon the quality of your thoughts.',
-    author: 'Marcus Aurelius',
-  },
-  {
-    quote:
-      'Waste no more time arguing about what a good person should be. Be one.',
-    author: 'Marcus Aurelius',
-  },
-  {
-    quote:
-      'It is not death that a person should fear, but they should fear never beginning to live.',
-    author: 'Marcus Aurelius',
-  },
-  {
-    quote:
-      'First say to yourself what you would be; and then do what you have to do.',
-    author: 'Epictetus',
-  },
-  {
-    quote:
-      'Very little is needed to make a happy life; it is all within yourself in your way of thinking.',
-    author: 'Marcus Aurelius',
-  },
-  {
-    quote:
-      'Nowhere can a person find a quieter or more troubled retreat than in their own soul.',
-    author: 'Marcus Aurelius',
-  },
-  {
-    quote:
-      'Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.',
-    author: 'Epictetus',
-  },
-  {
-    quote:
-      'It is not the person who has too little, but the person who craves more, that is poor.',
-    author: 'Lucius Annaeus Seneca',
-  },
-  {
-    quote: 'Freedom is not achieved by satisfying desire but by eliminating it.',
-    author: 'Epictetus',
-  },
-  {
-    quote:
-      'To wish to be well is a part of becoming well.',
-    author: 'Lucius Annaeus Seneca',
-  },
-];
+    {
+      quote:
+        'The happiness of your life depends upon the quality of your thoughts.',
+      author: 'Marcus Aurelius',
+    },
+    {
+      quote:
+        'Waste no more time arguing about what a good person should be. Be one.',
+      author: 'Marcus Aurelius',
+    },
+    {
+      quote:
+        'It is not death that a person should fear, but they should fear never beginning to live.',
+      author: 'Marcus Aurelius',
+    },
+    {
+      quote:
+        'First say to yourself what you would be; and then do what you have to do.',
+      author: 'Epictetus',
+    },
+    {
+      quote:
+        'Very little is needed to make a happy life; it is all within yourself in your way of thinking.',
+      author: 'Marcus Aurelius',
+    },
+    {
+      quote:
+        'Nowhere can a person find a quieter or more troubled retreat than in their own soul.',
+      author: 'Marcus Aurelius',
+    },
+    {
+      quote:
+        'Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.',
+      author: 'Epictetus',
+    },
+    {
+      quote:
+        'It is not the one who has too little, but the one who craves more, that is poor.',
+      author: 'Lucius Annaeus Seneca',
+    },
+    {
+      quote: 'Freedom is not achieved by satisfying desire but by eliminating it.',
+      author: 'Epictetus',
+    },
+    {
+      quote:
+        'To wish to be well is a part of becoming well.',
+      author: 'Lucius Annaeus Seneca',
+    },
+  ];
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -503,10 +503,13 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 }`}
               >
                 {message.role === 'bot' && (
-                  <Avatar className="h-12 w-12 flex-shrink-0">
-                    <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
-                    <AvatarFallback>S</AvatarFallback>
-                  </Avatar>
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
+                      <AvatarFallback>S</AvatarFallback>
+                    </Avatar>
+                    <p className="text-xs text-muted-foreground font-body">Sage</p>
+                  </div>
                 )}
                 <Card
                   className={`max-w-[85%] sm:max-w-md md:max-w-lg ${
@@ -525,10 +528,13 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
               (sessionState === 'chatting' ||
                 sessionState === 'gatheringInfo') && (
                 <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12 flex-shrink-0">
-                    <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
-                    <AvatarFallback>S</AvatarFallback>
-                  </Avatar>
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src="/clove-icon.jpeg" alt="Sage icon" />
+                      <AvatarFallback>S</AvatarFallback>
+                    </Avatar>
+                    <p className="text-xs text-muted-foreground font-body">Sage</p>
+                  </div>
                   <Card className="max-w-md bg-card/80">
                     <CardContent className="space-y-2 p-4">
                       <Skeleton className="h-4 w-[250px]" />
