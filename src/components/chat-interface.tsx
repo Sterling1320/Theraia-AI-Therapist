@@ -465,7 +465,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
           />
           <h1 className="font-headline text-2xl font-bold md:text-3xl">Theraia</h1>
         </Link>
-        <div className="flex-shrink-0">
+        <div className="flex items-center gap-2">
           {sessionState === 'chatting' && (
             <Button
               variant="outline"
