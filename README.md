@@ -1,4 +1,4 @@
-# 🧘‍♀️ Theraia – Your Personal AI Therapy Companion
+dd# 🧘‍♀️ Theraia – Your Personal AI Therapy Companion
 
 **Theraia** is a web-based AI therapy chatbot designed to offer users a safe and calming space to express their thoughts. Unlike generic chatbots, Theraia retains session context by saving personalized session summaries, mimicking how real therapists remember patient history. Built with React, TypeScript, Firebase, and powered by Google’s Gemini API, Theraia combines emotional intelligence, memory, and a warm user interface.
 
