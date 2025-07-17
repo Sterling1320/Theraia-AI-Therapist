@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -88,56 +87,56 @@ const simpleDecrypt = (text: string): string => {
 };
 
 const stoicQuotes = [
-    {
-      quote:
-        'The happiness of your life depends upon the quality of your thoughts.',
-      author: 'Marcus Aurelius',
-    },
-    {
-      quote:
-        'Waste no more time arguing about what a good person should be. Be one.',
-      author: 'Marcus Aurelius',
-    },
-    {
-      quote:
-        'It is not death that a person should fear, but they should fear never beginning to live.',
-      author: 'Marcus Aurelius',
-    },
-    {
-      quote:
-        'First say to yourself what you would be; and then do what you have to do.',
-      author: 'Epictetus',
-    },
-    {
-      quote:
-        'Very little is needed to make a happy life; it is all within yourself in your way of thinking.',
-      author: 'Marcus Aurelius',
-    },
-    {
-      quote:
-        'Nowhere can a person find a quieter or more troubled retreat than in their own soul.',
-      author: 'Marcus Aurelius',
-    },
-    {
-      quote:
-        'Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.',
-      author: 'Epictetus',
-    },
-    {
-      quote:
-        'It is not the one who has too little, but the one who craves more, that is poor.',
-      author: 'Lucius Annaeus Seneca',
-    },
-    {
-      quote: 'Freedom is not achieved by satisfying desire but by eliminating it.',
-      author: 'Epictetus',
-    },
-    {
-      quote:
-        'To wish to be well is a part of becoming well.',
-      author: 'Lucius Annaeus Seneca',
-    },
-  ];
+  {
+    quote:
+      'The happiness of your life depends upon the quality of your thoughts.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote:
+      'Waste no more time arguing about what a good person should be. Be one.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote:
+      'It is not death that a person should fear, but they should fear never beginning to live.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote:
+      'First say to yourself what you would be; and then do what you have to do.',
+    author: 'Epictetus',
+  },
+  {
+    quote:
+      'Very little is needed to make a happy life; it is all within yourself in your way of thinking.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote:
+      'Nowhere can a person find a quieter or more troubled retreat than in their own soul.',
+    author: 'Marcus Aurelius',
+  },
+  {
+    quote:
+      'Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.',
+    author: 'Epictetus',
+  },
+  {
+    quote:
+      'It is not the one who has too little, but the one who craves more, that is poor.',
+    author: 'Lucius Annaeus Seneca',
+  },
+  {
+    quote: 'Freedom is not achieved by satisfying desire but by eliminating it.',
+    author: 'Epictetus',
+  },
+  {
+    quote:
+      'To wish to be well is a part of becoming well.',
+    author: 'Lucius Annaeus Seneca',
+  },
+];
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -595,20 +594,22 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 }
               }}
             />
-            <AudioPlayer />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={
-                isLoading ||
-                !inputValue.trim() ||
-                sessionState === 'concluding' ||
-                sessionState === 'concluded'
-              }
-            >
-              <Send />
-              <span className="sr-only">Send</span>
-            </Button>
+            <div className="flex items-center">
+              <AudioPlayer />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={
+                  isLoading ||
+                  !inputValue.trim() ||
+                  sessionState === 'concluding' ||
+                  sessionState === 'concluded'
+                }
+              >
+                <Send />
+                <span className="sr-only">Send</span>
+              </Button>
+            </div>
           </form>
         </footer>
       )}

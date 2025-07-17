@@ -68,20 +68,18 @@ export default function AudioPlayer() {
   };
 
   return (
-    <div className="flex-shrink-0">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={togglePlayPause}
-        aria-label="Toggle music"
-        className="h-10 w-10"
-      >
-        {isPlaying ? (
-          <Volume2 className="h-8 w-8" />
-        ) : (
-          <VolumeX className="h-8 w-8" />
-        )}
-      </Button>
-    </div>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={togglePlayPause}
+      aria-label="Toggle music"
+    >
+      {isPlaying ? (
+        <Volume2 className="h-5 w-5" />
+      ) : (
+        <VolumeX className="h-5 w-5" />
+      )}
+    </Button>
   );
 }
