@@ -153,6 +153,7 @@ export default function ChatInterface() {
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -162,6 +163,14 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages, isLoading, sessionState, scrollToBottom]);
 
+  const handleFocus = () => {
+    // When the textarea is focused, scroll it into view.
+    // This is primarily for mobile devices where the keyboard might hide the input.
+    setTimeout(() => {
+      textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
+  };
+  
   const startFirstSession = () => {
     setSessionState('gatheringInfo');
     setMessages([]); // Clear any previous state
@@ -562,6 +571,8 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         <footer className="border-t border-border/50 pt-4 flex-shrink-0">
           <form onSubmit={handleSubmit} className="flex items-end gap-2 md:gap-4">
             <Textarea
+              ref={textareaRef}
+              onFocus={handleFocus}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={getPlaceholderText()}
