@@ -153,7 +153,7 @@ export default function ChatInterface() {
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -164,11 +164,14 @@ export default function ChatInterface() {
   }, [messages, isLoading, sessionState, scrollToBottom]);
 
   const handleFocus = () => {
-    // When the textarea is focused, scroll it into view.
-    // This is primarily for mobile devices where the keyboard might hide the input.
+    // When the textarea is focused on a mobile device, the keyboard can hide the input.
+    // This scrolls the chat container to the bottom to ensure the textarea remains visible.
     setTimeout(() => {
-      textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 100);
+      chatContainerRef.current?.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }, 150);
   };
   
   const startFirstSession = () => {
@@ -495,7 +498,10 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         </div>
       </header>
 
-      <div className="my-4 flex-1 overflow-y-auto pr-2 md:my-6 md:pr-4">
+      <div
+        ref={chatContainerRef}
+        className="my-4 flex-1 overflow-y-auto pr-2 md:my-6 md:pr-4"
+      >
         {sessionState === 'initial' && renderInitialScreen()}
         {sessionState === 'upload' && renderUploadScreen()}
 
@@ -571,7 +577,6 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
         <footer className="border-t border-border/50 pt-4 flex-shrink-0">
           <form onSubmit={handleSubmit} className="flex items-end gap-2 md:gap-4">
             <Textarea
-              ref={textareaRef}
               onFocus={handleFocus}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
