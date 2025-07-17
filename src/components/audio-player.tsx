@@ -49,6 +49,19 @@ export default function AudioPlayer() {
     };
   }, [currentTrackIndex, isPlaying, playNextTrack]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        setIsPlaying(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev);
