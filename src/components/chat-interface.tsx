@@ -579,7 +579,7 @@ To begin, why don’t you tell me a little about yourself? Whatever you feel com
                 }
               }}
             />
-            {sessionState !== 'initial' && sessionState !== 'upload' && <AudioPlayer />}
+            <AudioPlayer />
             <Button
               type="submit"
               size="icon"
